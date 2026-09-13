@@ -1,69 +1,135 @@
-import Image from "next/image";
+import Link from 'next/link'
+import { redirect } from 'next/navigation'
+import { getFamilyContext } from '@/lib/data/family'
+import { supabaseEnv } from '@/lib/supabase/env'
+import { clockFor } from '@/lib/domain/clock'
+import { weeklyNudge } from '@/lib/domain/nudge'
+import { addSon, setItemDone } from '@/app/actions'
+import { Field, Notice } from '@/components/ui'
+import { Masthead } from '@/components/masthead'
+import { ActionForm } from '@/components/action-form'
 
-export default function Home() {
-  return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+/**
+ * Per-user content: never prerender this. A cached copy would be one
+ * family's data served to another.
+ */
+export const dynamic = 'force-dynamic'
+
+const KIND_LABEL: Record<string, string> = {
+  conversation: 'A conversation',
+  competency: 'Something to teach him',
+  experience: 'Something to do together',
+  rite: 'The rite that closes the stage',
+}
+
+export default async function HomePage() {
+  if (!supabaseEnv()) {
+    return (
+      <main className="mx-auto w-full max-w-2xl flex-1 px-5 py-16">
+        <h1 className="font-display text-3xl">Cairn isn&apos;t connected yet</h1>
+        <p className="mt-4 text-ink-soft">
+          Set <code className="font-mono text-sm">NEXT_PUBLIC_SUPABASE_URL</code> and{' '}
+          <code className="font-mono text-sm">NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY</code>, then
+          redeploy.
+        </p>
       </main>
-    </div>
-  );
+    )
+  }
+
+  const ctx = await getFamilyContext()
+  if (!ctx) redirect('/login')
+  if (!ctx.family) redirect('/setup')
+
+  const nudge = weeklyNudge(ctx.children, ctx.completed)
+  const today = new Date().toISOString().slice(0, 10)
+
+  return (
+    <>
+      <Masthead email={ctx.userEmail} />
+      <main className="mx-auto w-full max-w-2xl flex-1 px-5 py-10">
+        {/* ---- This week: exactly one thing, however many sons ---- */}
+        <section className="flex flex-col gap-4">
+          <p className="eyebrow">This week</p>
+          {nudge ? (
+            <div className="flex flex-col gap-4 rounded-sm border border-rule bg-raised p-6">
+              <p className="font-mono text-xs tracking-wider text-accent uppercase">
+                {KIND_LABEL[nudge.item.kind]} · {nudge.child.name}
+              </p>
+              <h1 className="font-display text-2xl leading-snug">{nudge.item.title}</h1>
+              <p className="text-ink-soft">{nudge.item.detail}</p>
+              {nudge.item.opener ? (
+                <p className="border-l-2 border-l-accent bg-surface px-4 py-3 font-display text-lg italic">
+                  {nudge.item.opener}
+                </p>
+              ) : null}
+              {nudge.item.scripture ? (
+                <p className="font-mono text-xs tracking-wider text-accent uppercase">
+                  {nudge.item.scripture}
+                </p>
+              ) : null}
+              <ActionForm
+                action={setItemDone}
+                submitLabel="We've done this"
+                pendingLabel="Marking…"
+                footnote={nudge.item.scope === 'shared' ? 'Counts for every son' : undefined}
+              >
+                <input type="hidden" name="itemId" value={nudge.item.id} />
+                <input type="hidden" name="childId" value={nudge.child.id} />
+                <input type="hidden" name="done" value="true" />
+              </ActionForm>
+            </div>
+          ) : (
+            <Notice tone="info">
+              {ctx.children.length === 0
+                ? 'Add a son below and the arc will start.'
+                : 'Nothing outstanding for this stage. Either add his brother, or enjoy being ahead.'}
+            </Notice>
+          )}
+        </section>
+
+        {/* ---- The clock, per son ---- */}
+        <section className="mt-12 flex flex-col gap-4">
+          <p className="eyebrow">Time left</p>
+          <div className="flex flex-col divide-y divide-rule border-y border-rule">
+            {ctx.children.map((child) => {
+              const clock = clockFor(child)
+              return (
+                <div key={child.id} className="flex flex-wrap items-baseline gap-x-6 gap-y-2 py-5">
+                  <p className="font-display text-xl">{child.name}</p>
+                  <p className="font-mono text-sm text-ink-soft">{clock.age} years old</p>
+                  <p className="font-mono text-sm text-brass tabular-nums">
+                    {clock.summersLeft} summers left
+                  </p>
+                  <p className="w-full text-sm text-ink-soft">
+                    {clock.stage
+                      ? `Stage ${clock.stage.number} — ${clock.stage.name}. Reading ${clock.stage.spineText}.`
+                      : clock.age < 8
+                        ? `The arc starts at eight. ${clock.daysToNextBirthday} days to his next birthday.`
+                        : 'Past the arc.'}
+                  </p>
+                </div>
+              )
+            })}
+          </div>
+          <Link href="/arc" className="self-start text-sm font-medium text-accent underline">
+            See the whole stage
+          </Link>
+        </section>
+
+        {/* ---- Add a brother ---- */}
+        <section className="mt-12 flex flex-col gap-4">
+          <p className="eyebrow">Add another son</p>
+          <ActionForm
+            action={addSon}
+            submitLabel="Add him"
+            pendingLabel="Adding…"
+            className="flex flex-col gap-4 rounded-sm border border-rule bg-raised p-6"
+          >
+            <Field label="His name" name="name" />
+            <Field label="Date of birth" name="birthdate" type="date" max={today} />
+          </ActionForm>
+        </section>
+      </main>
+    </>
+  )
 }

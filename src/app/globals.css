@@ -1,26 +1,67 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --ground: #e9ebe6;
+  --surface: #f8f8f5;
+  --raised: #fdfdfc;
+  --ink: #1a2622;
+  --ink-soft: #5c6b65;
+  --ink-faint: #86958f;
+  --rule: #c9cfc6;
+  --rule-soft: #dee2da;
+  --accent: #2f5d50;
+  --accent-ink: #f8f8f5;
+  --accent-soft: #e0e9e3;
+  --brass: #8a6220;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --ground: #121917;
+    --surface: #1a2321;
+    --raised: #1e2825;
+    --ink: #e3e7e2;
+    --ink-soft: #9fada7;
+    --ink-faint: #74827c;
+    --rule: #2e3936;
+    --rule-soft: #26302d;
+    --accent: #79ae99;
+    --accent-ink: #121917;
+    --accent-soft: #1f2e29;
+    --brass: #c79a56;
   }
 }
 
+@theme inline {
+  --color-ground: var(--ground);
+  --color-surface: var(--surface);
+  --color-raised: var(--raised);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-ink-faint: var(--ink-faint);
+  --color-rule: var(--rule);
+  --color-rule-soft: var(--rule-soft);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-accent-soft: var(--accent-soft);
+  --color-brass: var(--brass);
+
+  --font-display: var(--font-newsreader), Georgia, "Times New Roman", serif;
+  --font-sans: var(--font-archivo), system-ui, -apple-system, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, Menlo, monospace;
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--font-sans);
+}
+
+/* Uppercase micro-labels, used throughout. */
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
 }
