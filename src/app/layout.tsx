@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import { Newsreader, Archivo, IBM_Plex_Mono } from 'next/font/google'
 import './globals.css'
+import { InstallPrompt, ServiceWorker } from '@/components/pwa'
 
 const newsreader = Newsreader({ variable: '--font-newsreader', subsets: ['latin'], display: 'swap' })
 const archivo = Archivo({ variable: '--font-archivo', subsets: ['latin'], display: 'swap' })
@@ -14,9 +15,13 @@ const plexMono = IBM_Plex_Mono({
 export const metadata: Metadata = {
   title: 'Cairn',
   description: 'A ten-year plan for raising sons on purpose.',
+  appleWebApp: { capable: true, title: 'Cairn', statusBarStyle: 'default' },
+  icons: { apple: '/icons/apple-touch-icon.png' },
 }
 
 export const viewport: Viewport = {
+  // Keeps content clear of the notch and home indicator once installed.
+  viewportFit: 'cover',
   themeColor: [
     { media: '(prefers-color-scheme: light)', color: '#e9ebe6' },
     { media: '(prefers-color-scheme: dark)', color: '#121917' },
@@ -29,7 +34,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       lang="en-AU"
       className={`${newsreader.variable} ${archivo.variable} ${plexMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <ServiceWorker />
+        <InstallPrompt />
+        {children}
+      </body>
     </html>
   )
 }
