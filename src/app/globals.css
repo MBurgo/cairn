@@ -55,6 +55,15 @@ body {
   background: var(--ground);
   color: var(--ink);
   font-family: var(--font-sans);
+  /*
+   * The manifest asks for viewport-fit: cover so the app fills the screen when
+   * installed, which means content would otherwise run under the notch and the
+   * status bar. Applied once here rather than per component, or a page showing
+   * both the install banner and the masthead pads twice.
+   */
+  padding-top: env(safe-area-inset-top);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
 }
 
 /* Uppercase micro-labels, used throughout. */

@@ -3,6 +3,7 @@ import type { ArcItem, Child, GroundworkItem } from '@/lib/domain/types'
 import { completeGroundwork, deferItem, setItemDone, skipGroundwork } from '@/app/actions'
 import { ActionForm } from '@/components/action-form'
 import { DayPicker, Prose, TextArea, WeightNote } from '@/components/ui'
+import { Scripture } from '@/components/scripture'
 
 const KIND_LABEL: Record<ArcItem['kind'], string> = {
   conversation: 'A conversation',
@@ -43,7 +44,7 @@ export function GroundworkCard({
       </Eyebrow>
       <h1 className="font-display text-2xl leading-snug">{item.title}</h1>
       <Prose text={item.detail} className="text-ink-soft" />
-      {item.scripture ? <Eyebrow>{item.scripture}</Eyebrow> : null}
+      {item.scripture ? <Scripture reference={item.scripture} /> : null}
 
       <ActionForm
         action={completeGroundwork}
@@ -102,7 +103,7 @@ export function ArcCard({
           {item.opener}
         </p>
       ) : null}
-      {item.scripture ? <Eyebrow>{item.scripture}</Eyebrow> : null}
+      {item.scripture ? <Scripture reference={item.scripture} /> : null}
       {item.weight === 'weighty' ? <WeightNote /> : null}
 
       <ActionForm

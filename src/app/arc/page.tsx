@@ -1,4 +1,3 @@
-import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { getFamilyContext } from '@/lib/data/family'
 import { clockFor } from '@/lib/domain/clock'
@@ -39,10 +38,6 @@ export default async function ArcPage() {
     <>
       <Masthead email={ctx.userEmail} />
       <main className="mx-auto w-full max-w-2xl flex-1 px-5 py-10">
-        <Link href="/" className="eyebrow hover:text-ink">
-          ← Home
-        </Link>
-
         {inArc.length === 0 ? (
           <div className="mt-8">
             <Notice tone="info">
