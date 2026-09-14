@@ -5,6 +5,8 @@ import { groundworkById } from '@/lib/domain/content'
 import { Masthead } from '@/components/masthead'
 import { QuickCapture, QuickPrayer } from '@/components/quick'
 import { PrayerReviewCard } from '@/components/prayer-review'
+import { ActionForm } from '@/components/action-form'
+import { deleteCapture, deletePrayer } from '@/app/actions'
 import { Notice } from '@/components/ui'
 
 /**
@@ -64,8 +66,9 @@ export default async function JournalPage() {
           <p className="eyebrow">What you&apos;ve written</p>
           {journal.captures.length === 0 ? (
             <Notice tone="info">
-              Nothing yet. The first thing you write is usually something he said that you&apos;d
-              otherwise have forgotten by Friday.
+              Nothing here yet. Most fathers start with something their son said that they&apos;d
+              otherwise have forgotten by Friday — open <strong>Write something down</strong> above
+              and put in a line.
             </Notice>
           ) : (
             <div className="flex flex-col divide-y divide-rule border-y border-rule">
@@ -78,6 +81,16 @@ export default async function JournalPage() {
                       {source?.captureLabel ? ` · ${source.captureLabel}` : ''}
                     </p>
                     <p className="whitespace-pre-wrap text-ink">{capture.body}</p>
+                    <ActionForm
+                      action={deleteCapture}
+                      variant="link"
+                      submitLabel="Delete"
+                      pendingLabel="Deleting…"
+                      destructive
+                      className="flex"
+                    >
+                      <input type="hidden" name="id" value={capture.id} />
+                    </ActionForm>
                   </article>
                 )
               })}
@@ -95,6 +108,16 @@ export default async function JournalPage() {
                     {prayer.loggedOn} · {nameOf(prayer.childId)} · back on {prayer.nextReviewOn}
                   </p>
                   <p className="font-display text-lg italic">&ldquo;{prayer.body}&rdquo;</p>
+                  <ActionForm
+                    action={deletePrayer}
+                    variant="link"
+                    submitLabel="Delete"
+                    pendingLabel="Deleting…"
+                    destructive
+                    className="flex"
+                  >
+                    <input type="hidden" name="id" value={prayer.id} />
+                  </ActionForm>
                 </article>
               ))}
             </div>

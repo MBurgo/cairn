@@ -20,6 +20,16 @@ function Card({ children }: { children: React.ReactNode }) {
   )
 }
 
+/**
+ * Apple's Writing guidance for multi-step flows: open with "Get started",
+ * keep one consistent word in the middle, and signal the end with "Done".
+ */
+function stepLabel(step: number, total: number): string {
+  if (step === 1) return 'Get started'
+  if (step === total) return 'Done'
+  return 'Continue'
+}
+
 function Eyebrow({ children }: { children: React.ReactNode }) {
   return (
     <p className="font-mono text-xs tracking-wider text-accent uppercase">{children}</p>
@@ -48,7 +58,7 @@ export function GroundworkCard({
 
       <ActionForm
         action={completeGroundwork}
-        submitLabel={item.input === 'acknowledge' ? "I've said it" : 'Save and continue'}
+        submitLabel={stepLabel(weekOf, total)}
         pendingLabel="Saving…"
         className="flex flex-col gap-4"
       >
@@ -66,12 +76,18 @@ export function GroundworkCard({
           action={deferItem}
           variant="link"
           submitLabel="Not this week"
+          destructive
           className="flex"
         >
           <input type="hidden" name="itemId" value={item.id} />
         </ActionForm>
         <form action={skipGroundwork}>
-          <button type="submit" className="text-sm text-ink-faint hover:text-ink">
+          <button
+            type="submit"
+            className="-mx-3 inline-flex min-h-11 items-center rounded-sm px-3 text-sm
+                       text-ink-faint hover:text-ink focus-visible:outline-2
+                       focus-visible:outline-offset-2 focus-visible:outline-accent"
+          >
             I know how this works — skip ahead
           </button>
         </form>
@@ -118,7 +134,7 @@ export function ArcCard({
       </ActionForm>
 
       <div className="flex flex-wrap items-center gap-5 border-t border-rule-soft pt-4">
-        <ActionForm action={deferItem} variant="link" submitLabel="Not yet" className="flex">
+        <ActionForm action={deferItem} variant="link" submitLabel="Not yet" destructive className="flex">
           <input type="hidden" name="itemId" value={item.id} />
           <input type="hidden" name="childId" value={child.id} />
         </ActionForm>

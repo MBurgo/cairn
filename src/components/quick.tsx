@@ -15,7 +15,7 @@ function Disclosure({
   return (
     <details className="group rounded-sm border border-rule bg-raised">
       <summary
-        className="flex cursor-pointer list-none items-baseline justify-between gap-4 px-5 py-4
+        className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-4 px-5 py-4
                    [&::-webkit-details-marker]:hidden"
       >
         <span className="font-display text-lg">{summary}</span>
@@ -42,7 +42,7 @@ function ChildSelect({
       <select
         id={name}
         name={name}
-        className="w-full rounded-sm border border-rule bg-raised px-3 py-2.5 text-ink
+        className="min-h-11 w-full rounded-sm border border-rule bg-raised px-3 py-2.5 text-ink
                    focus:outline-2 focus:outline-offset-1 focus:outline-accent"
       >
         {includeBoth ? <option value="">All of them</option> : null}
@@ -60,7 +60,7 @@ function ChildSelect({
 export function QuickCapture({ sons }: { sons: Child[] }) {
   return (
     <Disclosure summary="Write something down" hint="30 seconds">
-      <ActionForm action={addCapture} submitLabel="Save it" pendingLabel="Saving…">
+      <ActionForm action={addCapture} submitLabel="Save" pendingLabel="Saving…">
         <TextArea
           label="What happened, or what he said"
           name="body"
@@ -78,7 +78,7 @@ export function QuickPrayer({ sons }: { sons: Child[] }) {
   if (sons.length === 0) return null
   return (
     <Disclosure summary="Pray something over him" hint="Comes back later">
-      <ActionForm action={addPrayer} submitLabel="Log it" pendingLabel="Saving…">
+      <ActionForm action={addPrayer} submitLabel="Save" pendingLabel="Saving…">
         <TextArea
           label="What are you asking for him?"
           name="body"
@@ -92,7 +92,7 @@ export function QuickPrayer({ sons }: { sons: Child[] }) {
             id="reviewMonths"
             name="reviewMonths"
             defaultValue={6}
-            className="w-full rounded-sm border border-rule bg-raised px-3 py-2.5 text-ink
+            className="min-h-11 w-full rounded-sm border border-rule bg-raised px-3 py-2.5 text-ink
                        focus:outline-2 focus:outline-offset-1 focus:outline-accent"
           >
             <option value={3}>3 months</option>

@@ -12,7 +12,12 @@ export function Masthead({ email }: { email?: string }) {
           <div className="flex items-center gap-4">
             <span className="eyebrow hidden sm:inline">{email}</span>
             <form action={signOut}>
-              <button type="submit" className="text-sm text-ink-faint hover:text-ink">
+              <button
+                type="submit"
+                className="-mx-3 inline-flex min-h-11 items-center rounded-sm px-3 text-sm
+                           text-ink-faint hover:text-ink focus-visible:outline-2
+                           focus-visible:outline-offset-2 focus-visible:outline-accent"
+              >
                 Sign out
               </button>
             </form>

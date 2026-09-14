@@ -8,6 +8,8 @@ import { deferralDate } from '@/lib/domain/nudge'
 
 export interface ActionResult {
   error?: string
+  /** Confirmation shown after a successful action — "provide clear feedback". */
+  ok?: string
 }
 
 function isoDateOrNull(value: unknown): string | null {
@@ -106,7 +108,7 @@ export async function addSon(
   if (error) return { error: error.message }
 
   refresh()
-  return {}
+  return { ok: 'Added.' }
 }
 
 export async function setItemDone(
@@ -143,7 +145,7 @@ export async function setItemDone(
   }
 
   refresh()
-  return {}
+  return { ok: done ? 'Marked as done.' : 'Unmarked.' }
 }
 
 /**
@@ -176,7 +178,7 @@ export async function deferItem(
   if (error) return { error }
 
   refresh()
-  return {}
+  return { ok: "Put off for three months. It'll come back." }
 }
 
 /**
@@ -225,7 +227,7 @@ export async function completeGroundwork(
   if (error) return { error }
 
   refresh()
-  return {}
+  return { ok: 'Saved.' }
 }
 
 /** For a father who has done this before and does not need the ramp. */
@@ -283,7 +285,7 @@ export async function addCapture(
 
   revalidatePath('/')
   revalidatePath('/journal')
-  return {}
+  return { ok: "Kept. It'll be in his book." }
 }
 
 /**
@@ -321,7 +323,7 @@ export async function addPrayer(
 
   revalidatePath('/')
   revalidatePath('/journal')
-  return {}
+  return { ok: "Logged. You'll be asked about it later." }
 }
 
 /**
@@ -365,4 +367,51 @@ export async function reviewPrayer(
   revalidatePath('/')
   revalidatePath('/journal')
   return {}
+}
+
+/**
+ * Undo. Apple's Agency principle: help people recover from mistakes. Without
+ * this, a capture written in the wrong place or a prayer logged against the
+ * wrong son was permanent — in an app that prints these into a book.
+ */
+export async function deleteCapture(
+  _prev: ActionResult | null,
+  formData: FormData
+): Promise<ActionResult> {
+  const id = String(formData.get('id') ?? '')
+  const familyId = await currentFamilyId()
+  if (!familyId) return { error: 'No family found.' }
+
+  const supabase = await createClient()
+  const { error } = await supabase
+    .from('captures')
+    .delete()
+    .eq('id', id)
+    .eq('family_id', familyId)
+  if (error) return { error: error.message }
+
+  revalidatePath('/')
+  revalidatePath('/journal')
+  return { ok: 'Deleted.' }
+}
+
+export async function deletePrayer(
+  _prev: ActionResult | null,
+  formData: FormData
+): Promise<ActionResult> {
+  const id = String(formData.get('id') ?? '')
+  const familyId = await currentFamilyId()
+  if (!familyId) return { error: 'No family found.' }
+
+  const supabase = await createClient()
+  const { error } = await supabase
+    .from('prayers')
+    .delete()
+    .eq('id', id)
+    .eq('family_id', familyId)
+  if (error) return { error: error.message }
+
+  revalidatePath('/')
+  revalidatePath('/journal')
+  return { ok: 'Deleted.' }
 }
