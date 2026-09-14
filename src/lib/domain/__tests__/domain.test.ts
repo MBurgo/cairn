@@ -1,7 +1,7 @@
 import { test } from 'vitest'
 import assert from 'node:assert/strict'
-import { ageOn, clockFor, nextBirthday } from '../clock'
-import { stageForAge } from '../stages'
+import { ageOn, birthdaysPhrase, clockFor, nextBirthday } from '../clock'
+import { STAGES, stageForAge } from '../stages'
 import {
   alternativeCount,
   completionKey,
@@ -64,10 +64,10 @@ test('next birthday rolls into next year once this year has passed', () => {
   assert.deepEqual(nextBirthday('2016-12-25', on), new Date(2026, 11, 25))
 })
 
-test('the clock counts down to eighteen', () => {
+test('the clock counts birthdays down to eighteen', () => {
   const c = clockFor(SONS[0], on)
   assert.equal(c.age, 10)
-  assert.equal(c.summersLeft, 8)
+  assert.equal(c.birthdaysLeft, 8)
   assert.equal(c.saturdaysLeft, 416)
   assert.equal(c.stage?.key, 'wonder')
 })
@@ -319,4 +319,25 @@ test('father_first exists on the hardest conversations', () => {
   for (const item of weighty) {
     assert.ok(item.fatherFirst, `${item.id} is a hard conversation and needs father_first`)
   }
+})
+
+
+test('the clock is phrased as a fact, not a metric', () => {
+  const eli = clockFor({ id: 'a', name: 'Eli', birthdate: '2016-03-01' }, on)
+  assert.equal(birthdaysPhrase(eli), '8 birthdays left')
+  assert.equal(birthdaysPhrase(eli, 'long'), '8 more birthdays before he is his own man')
+
+  const one = clockFor({ id: 'b', name: 'B', birthdate: '2009-01-01' }, on)
+  assert.equal(one.birthdaysLeft, 1)
+  assert.equal(birthdaysPhrase(one), '1 birthday left', 'singular')
+
+  const grown = clockFor({ id: 'c', name: 'C', birthdate: '2008-01-01' }, on)
+  assert.equal(birthdaysPhrase(grown, 'long'), 'He is his own man now.')
+})
+
+test('stages are named, not described', () => {
+  assert.deepEqual(
+    STAGES.map((s) => s.name),
+    ['The Watching', 'The Forge', 'The Proving', 'The Send']
+  )
 })

@@ -1,100 +1,119 @@
 @import "tailwindcss";
 
 /*
- * Cairn is meant to feel like a lamp-lit study, not a productivity tool.
+ * Warm stone, with the week's one thing on a dark card.
  *
- * Two ideas carry the whole design:
+ * Three surfaces, three meanings, and a father can tell them apart without
+ * reading a word:
  *
- *   1. Paper is a MATERIAL, not a theme. Anything a father writes — captures,
- *      prayers, blessings, letters — lands on a warm sheet in both light and
- *      dark, because it is going into a printed book. He should be able to see
- *      at a glance what is kept and what is just the app talking.
+ *   stone  — the app itself, calm and warm
+ *   card   — what is being asked of you this week. Always the opposite of the
+ *            ground, so it carries weight in either theme.
+ *   paper  — what you write. It is going into a printed book, so it looks
+ *            like a page rather than a form field.
  *
- *   2. Almost no borders. Space and tone separate things. Rules and outlines
- *      everywhere is what made the earlier version read as a document.
+ * Almost no borders anywhere: space and tone separate things.
  */
 
 :root {
-  --ground: #e7e9e3;
-  --raised: #f4f5f1;
-  --ink: #1a2320;
-  --ink-soft: #5b6a64;
-  --ink-faint: #8a968f;
-  --rule: #ccd2c9;
-  --accent: #2f5d50;
-  --accent-ink: #f6f7f3;
-  --brass: #8a6220;
+  --stone: #e8e4dc;
+  --bone: #f4f1ec;
+  --ink: #221f1a;
+  --ink-soft: #5f594e;
+  --ink-faint: #8c8375;
+  --rule: #ddd7cb;
+  --rust: #c9622f;
+  --tan: #a07a52;
+
+  /* the week's card: dark on a light ground */
+  --card: #221f1a;
+  --card-ink: #f4f1ec;
+  --card-soft: #a8a094;
+  --card-accent: #e08a52;
+
+  /* paper is brighter than the stone it sits on */
+  --paper: #faf8f4;
+  --paper-ink: #221f1a;
+  --paper-soft: #6b6459;
+  --paper-edge: #e4dfd4;
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --ground: #0f1412;
-    --raised: #1a211e;
-    --ink: #e7ebe5;
-    --ink-soft: #9aa9a1;
-    --ink-faint: #6d7b74;
-    --rule: #232b27;
-    --accent: #8fbca6;
-    --accent-ink: #0f1412;
-    --brass: #d4a85f;
+    --stone: #1a1714;
+    --bone: #23201b;
+    --ink: #ece8e0;
+    --ink-soft: #a8a094;
+    --ink-faint: #7d766a;
+    --rule: #2e2a24;
+    --rust: #e08a52;
+    --tan: #c09a72;
+
+    /* inverted: on a dark ground the asked-for thing is the light one */
+    --card: #f4f1ec;
+    --card-ink: #221f1a;
+    --card-soft: #6b6459;
+    --card-accent: #c9622f;
+
+    /* paper dims at night so it doesn't glare at a bedside */
+    --paper: #efe9df;
+    --paper-ink: #262218;
+    --paper-soft: #6b6459;
+    --paper-edge: #ddd5c6;
   }
 }
 
 :root[data-theme="dark"] {
-  --ground: #0f1412;
-  --raised: #1a211e;
-  --ink: #e7ebe5;
-  --ink-soft: #9aa9a1;
-  --ink-faint: #6d7b74;
-  --rule: #232b27;
-  --accent: #8fbca6;
-  --accent-ink: #0f1412;
-  --brass: #d4a85f;
-}
-
-/* Paper does not change with the theme. That is the point of it. */
-:root {
-  --paper: #ede9df;
-  --paper-ink: #23211c;
-  --paper-soft: #5f5a4e;
-  --paper-edge: #ddd7c8;
+  --stone: #1a1714;
+  --bone: #23201b;
+  --ink: #ece8e0;
+  --ink-soft: #a8a094;
+  --ink-faint: #7d766a;
+  --rule: #2e2a24;
+  --rust: #e08a52;
+  --tan: #c09a72;
+  --card: #f4f1ec;
+  --card-ink: #221f1a;
+  --card-soft: #6b6459;
+  --card-accent: #c9622f;
+  --paper: #efe9df;
+  --paper-ink: #262218;
+  --paper-soft: #6b6459;
+  --paper-edge: #ddd5c6;
 }
 
 @theme inline {
-  --color-ground: var(--ground);
-  --color-raised: var(--raised);
+  --color-stone: var(--stone);
+  --color-bone: var(--bone);
   --color-ink: var(--ink);
   --color-ink-soft: var(--ink-soft);
   --color-ink-faint: var(--ink-faint);
   --color-rule: var(--rule);
-  --color-accent: var(--accent);
-  --color-accent-ink: var(--accent-ink);
-  --color-brass: var(--brass);
+  --color-rust: var(--rust);
+  --color-tan: var(--tan);
+  --color-card: var(--card);
+  --color-card-ink: var(--card-ink);
+  --color-card-soft: var(--card-soft);
+  --color-card-accent: var(--card-accent);
   --color-paper: var(--paper);
   --color-paper-ink: var(--paper-ink);
   --color-paper-soft: var(--paper-soft);
   --color-paper-edge: var(--paper-edge);
 
   --font-display: var(--font-newsreader), Georgia, "Times New Roman", serif;
-  --font-sans: var(--font-archivo), system-ui, -apple-system, sans-serif;
+  --font-sans: var(--font-plex-sans), system-ui, -apple-system, sans-serif;
   --font-mono: var(--font-plex-mono), ui-monospace, Menlo, monospace;
 }
 
 body {
-  background: var(--ground);
+  background: var(--stone);
   color: var(--ink);
   font-family: var(--font-sans);
-  /*
-   * The manifest asks for viewport-fit: cover so the app fills the screen when
-   * installed, which means content would otherwise run under the notch.
-   * Applied once here rather than per component.
-   */
   padding-top: env(safe-area-inset-top);
   padding-left: env(safe-area-inset-left);
   padding-right: env(safe-area-inset-right);
 }
 
-/* Uppercase micro-labels. */
 .eyebrow {
   font-family: var(--font-mono);
   font-size: 0.66rem;
@@ -103,13 +122,23 @@ body {
   color: var(--ink-faint);
 }
 
-/* The week's instruction. The one thing on the screen allowed to be big. */
+/* The week's instruction, on the card. The one thing allowed to be big. */
 .instruction {
   font-family: var(--font-display);
   font-weight: 400;
-  font-size: 1.95rem;
-  line-height: 1.13;
+  font-size: 1.9rem;
+  line-height: 1.14;
   letter-spacing: -0.015em;
+  text-wrap: balance;
+}
+
+/* A page heading, off the card. */
+.heading {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 1.75rem;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
   text-wrap: balance;
   color: var(--ink);
 }
@@ -118,11 +147,10 @@ body {
 .sheet {
   background: var(--paper);
   color: var(--paper-ink);
-  border-radius: 6px;
-  box-shadow: 0 10px 24px -18px rgba(0, 0, 0, 0.75);
+  border-radius: 4px;
+  box-shadow: 0 1px 0 var(--paper-edge), 0 12px 28px -22px rgba(34, 31, 26, 0.55);
 }
 
-/* His words, on the sheet. */
 .written {
   font-family: var(--font-display);
   font-size: 1.0625rem;
@@ -130,7 +158,6 @@ body {
   color: var(--paper-ink);
 }
 
-/* Dates and labels printed on the sheet rather than in the interface. */
 .stamp {
   font-family: var(--font-mono);
   font-size: 0.6rem;

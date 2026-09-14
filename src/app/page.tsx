@@ -3,18 +3,14 @@ import { redirect } from 'next/navigation'
 import { getFamilyContext } from '@/lib/data/family'
 import { getJournal } from '@/lib/data/journal'
 import { supabaseEnv } from '@/lib/supabase/env'
-import { clockFor } from '@/lib/domain/clock'
-import {
-  alternativeCount,
-  completionKey,
-  weeklyNudge,
-  type NudgeState,
-} from '@/lib/domain/nudge'
+import { birthdaysPhrase, clockFor } from '@/lib/domain/clock'
+import { alternativeCount, completionKey, weeklyNudge, type NudgeState } from '@/lib/domain/nudge'
 import { GROUNDWORK, itemsForStage } from '@/lib/domain/content'
 import { Notice, QuietRow } from '@/components/ui'
 import { Masthead } from '@/components/masthead'
 import { ArcCard, GroundworkCard } from '@/components/nudges'
 import { PrayerReviewCard } from '@/components/prayer-review'
+import { InlineCapture } from '@/components/inline-capture'
 
 /**
  * Per-user content: never prerender this. A cached copy would be one
@@ -30,7 +26,7 @@ export default async function HomePage({
   if (!supabaseEnv()) {
     return (
       <main className="mx-auto w-full max-w-2xl flex-1 px-5 py-16">
-        <h1 className="instruction">Cairn isn&apos;t connected yet</h1>
+        <h1 className="heading">Cairn isn&apos;t connected yet</h1>
         <p className="mt-4 text-ink-soft">
           Set <code className="font-mono text-sm">NEXT_PUBLIC_SUPABASE_URL</code> and{' '}
           <code className="font-mono text-sm">NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY</code>, then
@@ -60,17 +56,26 @@ export default async function HomePage({
   const nameOf = (id: string | null) =>
     id ? (ctx.children.find((c) => c.id === id)?.name ?? 'him') : 'all of them'
 
-  const openPrayers = journal.prayers.filter((p) => p.status === 'waiting').length
-  const prayerLabel =
-    ctx.children.length === 1
-      ? `Write down a prayer for ${ctx.children[0].name}`
-      : 'Write down a prayer for one of them'
+  // The quiet line the whole product turns on, stated once and never as a bar.
+  const subject = nudge?.type === 'arc' ? nudge.child : ctx.children[0]
+  const subjectClock = subject ? clockFor(subject) : null
 
   return (
     <>
       <Masthead />
-      <main className="mx-auto w-full max-w-2xl flex-1 px-5 pt-12 pb-10">
-        {/* ---- One thing. Everything else on this screen recedes from it. ---- */}
+      <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-12 px-5 pt-8 pb-10">
+        {/* ---- Where he is, said plainly. No bar, no percentage. ---- */}
+        {subject && subjectClock ? (
+          <p className="flex flex-wrap items-baseline gap-x-3 text-sm text-ink-soft">
+            <span className="font-display text-lg text-ink">{subject.name}</span>
+            <span>
+              {subjectClock.stage ? `${subjectClock.stage.name} · ` : ''}
+              {birthdaysPhrase(subjectClock, 'long')}
+            </span>
+          </p>
+        ) : null}
+
+        {/* ---- The one thing, on the card ---- */}
         {nudge?.type === 'groundwork' ? (
           <GroundworkCard
             item={nudge.item}
@@ -100,38 +105,43 @@ export default async function HomePage({
         ) : null}
 
         {skip > 0 && nudge?.type === 'arc' ? (
-          <Link href="/" className="mt-6 inline-block text-sm text-ink-faint hover:text-ink">
+          <Link href="/" className="-mt-8 text-sm text-ink-faint hover:text-ink">
             ← Back to this week&apos;s
           </Link>
         ) : null}
 
         {/* ---- A prayer that has come back to ask what happened ---- */}
         {journal.due.length > 0 ? (
-          <section className="mt-14 flex flex-col gap-5">
+          <section className="flex flex-col gap-5">
             <p className="eyebrow">You prayed this a while ago</p>
             <PrayerReviewCard prayer={journal.due[0]} childName={nameOf(journal.due[0].childId)} />
             {journal.due.length > 1 ? (
-              <Link href="/journal" className="text-sm text-accent underline underline-offset-4">
+              <Link href="/journal" className="text-sm text-rust underline underline-offset-4">
                 {journal.due.length - 1} more waiting on you
               </Link>
             ) : null}
           </section>
         ) : null}
 
-        {/* ---- Available whatever this week's thing is ---- */}
-        <section className="mt-14 flex flex-col">
+        {/* ---- Thirty seconds, whatever else the week holds ---- */}
+        {ctx.children.length > 0 ? (
+          <section className="flex flex-col gap-4">
+            <p className="eyebrow">Write it down before you forget</p>
+            <InlineCapture sons={ctx.children} />
+          </section>
+        ) : null}
+
+        {/* ---- Everything else, receding ---- */}
+        <section className="flex flex-col">
           <QuietRow
             href="/journal"
-            label="Write down something he said or did"
-            trailing={journal.captures.length > 0 ? `${journal.captures.length} kept` : undefined}
+            label="Everything you&rsquo;ve kept"
+            trailing={
+              journal.captures.length + journal.prayers.length > 0
+                ? `${journal.captures.length + journal.prayers.length}`
+                : undefined
+            }
           />
-          {ctx.children.length > 0 ? (
-            <QuietRow
-              href="/journal"
-              label={prayerLabel}
-              trailing={openPrayers > 0 ? `${openPrayers} open` : undefined}
-            />
-          ) : null}
           {ctx.children.map((child) => {
             const clock = clockFor(child)
             const items = clock.stage ? itemsForStage(clock.stage.key) : []
@@ -143,7 +153,7 @@ export default async function HomePage({
                 label={`${child.name}, ${clock.age}`}
                 trailing={
                   clock.stage
-                    ? `${clock.summersLeft} summers · ${done}/${items.length}`
+                    ? `${clock.stage.name} · ${done}/${items.length}`
                     : clock.age < 8
                       ? 'starts at 8'
                       : 'past the plan'

@@ -23,7 +23,7 @@ export default async function SonsPage() {
     <>
       <Masthead />
       <main className="mx-auto w-full max-w-2xl flex-1 px-5 pt-12 pb-10">
-        <h1 className="instruction">{ctx.family.name}</h1>
+        <h1 className="heading">{ctx.family.name}</h1>
 
         <section className="mt-8 flex flex-col gap-4">
           <p className="eyebrow">Your sons</p>

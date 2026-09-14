@@ -14,9 +14,9 @@ const KIND_LABEL: Record<ArcItem['kind'], string> = {
 }
 
 /**
- * The label names what is actually behind it. "Why this one, and how" was the
- * app being clever; a father wants to know whether opening it will tell him
- * what to say or how to do it.
+ * The label names what is behind it. "Why this one, and how" was the app being
+ * clever; a father wants to know whether opening it tells him what to say or
+ * how to do it.
  */
 function disclosureLabel(item: ArcItem): string {
   switch (item.kind) {
@@ -31,32 +31,41 @@ function disclosureLabel(item: ArcItem): string {
   }
 }
 
-function More({ label, children }: { label: string; children: React.ReactNode }) {
+/**
+ * The week's one thing, on a card that is always the opposite of the ground.
+ * Dark on stone by day, bone on dark at night — either way it is the single
+ * weighty object on the screen.
+ */
+function Card({ children }: { children: React.ReactNode }) {
   return (
-    <details className="group">
-      <summary
-        className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-4
-                   text-sm text-ink-soft [&::-webkit-details-marker]:hidden"
-      >
-        <span>{label}</span>
-        <span
-          aria-hidden="true"
-          className="text-ink-faint transition-transform group-open:rotate-180"
-        >
-          ▾
-        </span>
-      </summary>
-      <div className="flex flex-col gap-5 pt-2 pb-4">{children}</div>
-    </details>
+    <section className="flex flex-col gap-6 rounded-2xl bg-card px-6 py-7 text-card-ink">
+      {children}
+    </section>
   )
 }
 
-function Heading({ kicker, title }: { kicker: string; title: string }) {
+function Kicker({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex flex-col gap-4">
-      <p className="font-mono text-[0.65rem] tracking-[0.15em] text-accent uppercase">{kicker}</p>
-      <h1 className="instruction">{title}</h1>
-    </div>
+    <p className="font-mono text-[0.65rem] tracking-[0.15em] text-card-soft uppercase">
+      {children}
+    </p>
+  )
+}
+
+function More({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <details className="group border-t border-t-card-soft/25">
+      <summary
+        className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-4
+                   text-sm text-card-soft [&::-webkit-details-marker]:hidden"
+      >
+        <span>{label}</span>
+        <span aria-hidden="true" className="transition-transform group-open:rotate-180">
+          ▾
+        </span>
+      </summary>
+      <div className="flex flex-col gap-5 pt-2 pb-3">{children}</div>
+    </details>
   )
 }
 
@@ -84,19 +93,27 @@ export function GroundworkCard({
   firstSonName?: string
 }) {
   return (
-    <section className="flex flex-col gap-7">
-      <Heading kicker={`Getting ready · week ${weekOf} of ${total}`} title={item.title} />
-      <p className="text-ink-soft">{item.summary}</p>
+    <Card>
+      <div className="flex flex-col gap-4">
+        <Kicker>
+          Getting ready · week {weekOf} of {total}
+        </Kicker>
+        <h1 className="instruction">{item.title}</h1>
+        <p className="text-card-soft">{item.summary}</p>
+      </div>
 
       <ActionForm
         action={completeGroundwork}
         submitLabel={stepLabel(weekOf, total)}
         pendingLabel="Saving…"
+        onCard
         className="flex flex-col gap-5"
       >
         <input type="hidden" name="itemId" value={item.id} />
         {item.input === 'reminder-day' ? (
-          <DayPicker name="reminderDay" defaultValue={reminderDay} />
+          <div className="rounded-md bg-card-ink/10 p-4">
+            <DayPicker name="reminderDay" defaultValue={reminderDay} />
+          </div>
         ) : null}
         {item.input === 'writing' ? (
           <Sheet
@@ -109,25 +126,29 @@ export function GroundworkCard({
       </ActionForm>
 
       <More label="Why this matters before you start">
-        <Prose text={item.detail} className="text-ink-soft" />
-        {item.scripture ? <Scripture reference={item.scripture} /> : null}
+        <Prose text={item.detail} className="text-card-soft" />
+        {item.scripture ? <Scripture reference={item.scripture} onCard /> : null}
         <div className="flex flex-col gap-1">
-          <ActionForm action={deferItem} variant="link" submitLabel="Put this off for now">
+          <ActionForm
+            action={deferItem}
+            variant="link"
+            submitLabel="Put this off for now"
+            onCard
+          >
             <input type="hidden" name="itemId" value={item.id} />
           </ActionForm>
           <form action={skipGroundwork}>
             <button
               type="submit"
               className="-mx-2 inline-flex min-h-11 items-center rounded-lg px-2 text-sm
-                         text-ink-faint hover:text-ink focus-visible:outline-2
-                         focus-visible:outline-offset-2 focus-visible:outline-accent"
+                         text-card-soft hover:text-card-ink"
             >
               I&apos;ve done this before — skip the four weeks
             </button>
           </form>
         </div>
       </More>
-    </section>
+    </Card>
   )
 }
 
@@ -145,18 +166,19 @@ export function ArcCard({
   skip: number
 }) {
   return (
-    <section className="flex flex-col gap-7">
-      <Heading
-        kicker={`This week · ${KIND_LABEL[item.kind]}`}
-        title={titleFor(item, child.name, mentor?.name)}
-      />
-      <p className="text-ink-soft">{item.summary}</p>
-      {item.weight === 'weighty' ? <WeightNote /> : null}
+    <Card>
+      <div className="flex flex-col gap-4">
+        <Kicker>This week · {KIND_LABEL[item.kind]}</Kicker>
+        <h1 className="instruction">{titleFor(item, child.name, mentor?.name)}</h1>
+        <p className="text-card-soft">{item.summary}</p>
+        {item.weight === 'weighty' ? <WeightNote /> : null}
+      </div>
 
       <ActionForm
         action={setItemDone}
         submitLabel="We&rsquo;ve done this"
         pendingLabel="Marking…"
+        onCard
         footnote={item.scope === 'shared' ? 'Counts for every son' : undefined}
       >
         <input type="hidden" name="itemId" value={item.id} />
@@ -167,17 +189,19 @@ export function ArcCard({
       <More label={disclosureLabel(item)}>
         {item.fatherFirst ? (
           <div className="flex flex-col gap-1.5">
-            <p className="eyebrow text-brass">Go first</p>
-            <p className="text-ink">{item.fatherFirst}</p>
+            <p className="font-mono text-[0.65rem] tracking-widest text-card-accent uppercase">
+              Go first
+            </p>
+            <p className="text-card-ink">{item.fatherFirst}</p>
           </div>
         ) : null}
-        <p className="text-ink-soft">{item.detail}</p>
+        <p className="text-card-soft">{item.detail}</p>
         {item.opener ? (
-          <p className="font-display text-lg text-ink italic">{item.opener}</p>
+          <p className="font-display text-lg text-card-ink italic">{item.opener}</p>
         ) : null}
-        {item.scripture ? <Scripture reference={item.scripture} /> : null}
+        {item.scripture ? <Scripture reference={item.scripture} onCard /> : null}
         <div className="flex flex-col gap-1">
-          <ActionForm action={deferItem} variant="link" submitLabel="Put this off for now">
+          <ActionForm action={deferItem} variant="link" submitLabel="Put this off for now" onCard>
             <input type="hidden" name="itemId" value={item.id} />
             <input type="hidden" name="childId" value={child.id} />
           </ActionForm>
@@ -185,16 +209,17 @@ export function ArcCard({
             <Link
               href={`/?skip=${skip + 1}`}
               prefetch={false}
-              className="-mx-2 inline-flex min-h-11 items-center rounded-lg px-2 text-sm text-accent"
+              className="-mx-2 inline-flex min-h-11 items-center rounded-lg px-2 text-sm
+                         text-card-soft hover:text-card-ink"
             >
               Give me a different one this week
             </Link>
           ) : null}
-          <p className="pt-1 text-sm text-ink-faint">
+          <p className="pt-1 text-sm text-card-soft">
             Nothing here is overdue, and Cairn doesn&apos;t keep score.
           </p>
         </div>
       </More>
-    </section>
+    </Card>
   )
 }

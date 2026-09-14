@@ -19,6 +19,7 @@ export function ActionForm({
   children,
   footnote,
   destructive = false,
+  onCard = false,
 }: {
   action: Action
   submitLabel: string
@@ -28,6 +29,7 @@ export function ActionForm({
   children?: React.ReactNode
   footnote?: string
   destructive?: boolean
+  onCard?: boolean
 }) {
   const [state, formAction, pending] = useActionState(action, null)
 
@@ -43,8 +45,12 @@ export function ActionForm({
             disabled={pending}
             className={`-mx-2 inline-flex min-h-11 items-center rounded-lg px-2 text-sm
                         disabled:opacity-50 focus-visible:outline-2
-                        focus-visible:outline-offset-2 focus-visible:outline-accent ${
-                          destructive ? 'text-ink-faint hover:text-brass' : 'text-accent'
+                        focus-visible:outline-offset-2 ${
+                          onCard
+                            ? 'text-card-soft hover:text-card-ink focus-visible:outline-card-ink'
+                            : destructive
+                              ? 'text-ink-faint hover:text-rust focus-visible:outline-rust'
+                              : 'text-rust focus-visible:outline-rust'
                         }`}
           >
             {pending ? (pendingLabel ?? 'Saving…') : submitLabel}
@@ -53,9 +59,13 @@ export function ActionForm({
         </div>
       ) : (
         <div className="flex flex-col gap-2">
-          <Submit disabled={pending}>{pending ? (pendingLabel ?? 'Saving…') : submitLabel}</Submit>
+          <Submit disabled={pending} onCard={onCard}>{pending ? (pendingLabel ?? 'Saving…') : submitLabel}</Submit>
           {footnote ? (
-            <span className="text-center text-sm text-ink-faint">{footnote}</span>
+            <span
+              className={`text-center text-sm ${onCard ? 'text-card-soft' : 'text-ink-faint'}`}
+            >
+              {footnote}
+            </span>
           ) : null}
         </div>
       )}

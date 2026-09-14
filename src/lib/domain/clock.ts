@@ -35,16 +35,28 @@ export function nextBirthday(birthdate: string, on: Date = new Date()): Date {
 
 export function clockFor(child: Child, on: Date = new Date()): Clock {
   const age = ageOn(child.birthdate, on)
-  const summersLeft = Math.max(0, LEAVING_AGE - age)
+  const birthdaysLeft = Math.max(0, LEAVING_AGE - age)
   const next = nextBirthday(child.birthdate, on)
   const msPerDay = 24 * 60 * 60 * 1000
   return {
     age,
-    summersLeft,
+    birthdaysLeft,
     // Whole weeks remaining, which is near enough one Saturday each.
-    saturdaysLeft: summersLeft * 52,
+    saturdaysLeft: birthdaysLeft * 52,
     nextBirthday: next,
     daysToNextBirthday: Math.round((next.getTime() - startOfDay(on).getTime()) / msPerDay),
     stage: stageForAge(age),
   }
+}
+
+/**
+ * How the clock is said. Short for a list row, long where there is room —
+ * a countdown should read as a fact about his life, not a metric.
+ */
+export function birthdaysPhrase(clock: Clock, form: 'short' | 'long' = 'short'): string {
+  if (clock.birthdaysLeft === 0) return form === 'short' ? 'his own man' : 'He is his own man now.'
+  const plural = clock.birthdaysLeft === 1 ? 'birthday' : 'birthdays'
+  return form === 'short'
+    ? `${clock.birthdaysLeft} ${plural} left`
+    : `${clock.birthdaysLeft} more ${plural} before he is his own man`
 }

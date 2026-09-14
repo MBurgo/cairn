@@ -118,8 +118,12 @@ export interface Child {
 
 export interface Clock {
   age: number
-  /** Whole years until his eighteenth. */
-  summersLeft: number
+  /**
+   * Birthdays still to come before he turns eighteen. Warmer than weeks and
+   * more honest than summers — and it is the unit the product already marks,
+   * since the blessing is anchored to a chosen birthday.
+   */
+  birthdaysLeft: number
   saturdaysLeft: number
   nextBirthday: Date
   daysToNextBirthday: number
