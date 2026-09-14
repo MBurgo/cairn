@@ -26,7 +26,7 @@ export function Field({
         placeholder={placeholder}
         autoComplete={autoComplete}
         max={max}
-        className="w-full rounded-sm border border-rule bg-raised px-3 py-2.5 text-ink
+        className="min-h-11 w-full rounded-sm border border-rule bg-raised px-3 py-2.5 text-ink
                    focus:outline-2 focus:outline-offset-1 focus:outline-accent"
       />
     </label>
@@ -44,9 +44,9 @@ export function Submit({
     <button
       type="submit"
       disabled={disabled}
-      className="self-start rounded-sm bg-accent px-6 py-3 font-semibold text-accent-ink
-                 hover:opacity-90 disabled:opacity-50 focus-visible:outline-2
-                 focus-visible:outline-offset-2 focus-visible:outline-accent"
+      className="inline-flex min-h-11 items-center self-start rounded-sm bg-accent px-6 py-3
+                 font-semibold text-accent-ink hover:opacity-90 disabled:opacity-50
+                 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
     >
       {children}
     </button>
@@ -58,11 +58,18 @@ export function Notice({
   tone = 'error',
 }: {
   children: React.ReactNode
-  tone?: 'error' | 'info'
+  tone?: 'error' | 'info' | 'ok'
 }) {
   const border = tone === 'error' ? 'border-l-brass' : 'border-l-accent'
+  const bg = tone === 'ok' ? 'bg-accent-soft' : 'bg-surface'
+  const text = tone === 'ok' ? 'text-ink' : 'text-ink-soft'
   return (
-    <p className={`border-l-2 ${border} bg-surface px-4 py-3 text-sm text-ink-soft`}>{children}</p>
+    <p
+      role={tone === 'error' ? 'alert' : 'status'}
+      className={`border-l-2 ${border} ${bg} px-4 py-3 text-sm ${text}`}
+    >
+      {children}
+    </p>
   )
 }
 
@@ -85,7 +92,7 @@ export function TextArea({
         name={name}
         rows={rows}
         placeholder={placeholder}
-        className="w-full rounded-sm border border-rule bg-raised px-3 py-2.5 text-ink
+        className="min-h-11 w-full rounded-sm border border-rule bg-raised px-3 py-2.5 text-ink
                    focus:outline-2 focus:outline-offset-1 focus:outline-accent"
       />
     </label>
@@ -102,7 +109,7 @@ export function DayPicker({ name, defaultValue = 0 }: { name: string; defaultVal
         id={name}
         name={name}
         defaultValue={defaultValue}
-        className="w-full rounded-sm border border-rule bg-raised px-3 py-2.5 text-ink
+        className="min-h-11 w-full rounded-sm border border-rule bg-raised px-3 py-2.5 text-ink
                    focus:outline-2 focus:outline-offset-1 focus:outline-accent"
       >
         {DAYS.map((day, i) => (
