@@ -2,35 +2,30 @@ import { passageFor, readOnlineUrl } from '@/lib/domain/content/scripture'
 
 /**
  * Shows the verse where we carry it, and always offers a way to read the
- * passage in full. A father shouldn't have to go hunting for a reference the
- * app just quoted at him.
+ * passage in full. Scripture is quoted rather than boxed — it reads as
+ * something said, not as a callout panel.
  */
 export function Scripture({ reference }: { reference: string }) {
   const passage = passageFor(reference)
 
   return (
-    <div className="flex flex-col gap-2 rounded-sm bg-accent-soft px-4 py-3">
+    <div className="flex flex-col gap-2 border-l border-l-accent pl-4">
       {passage ? (
-        <p className="font-display text-lg leading-snug italic text-ink">
-          &ldquo;{passage.text}&rdquo;
-        </p>
+        <p className="font-display text-lg leading-snug text-ink italic">{passage.text}</p>
       ) : null}
-      <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-        <span className="font-mono text-xs tracking-wider text-accent uppercase">{reference}</span>
-        {passage ? (
-          <span className="font-mono text-[0.65rem] tracking-wider text-ink-faint uppercase">
-            {passage.translation}
-          </span>
-        ) : null}
+      <p className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+        <span className="font-mono text-[0.65rem] tracking-widest text-accent uppercase">
+          {reference}
+        </span>
         <a
           href={readOnlineUrl(reference)}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-sm font-medium text-accent underline"
+          className="text-sm text-accent underline underline-offset-4"
         >
-          {passage ? 'Read it in context' : 'Read the passage'}
+          {passage ? 'Read the whole passage' : 'Read this passage'}
         </a>
-      </div>
+      </p>
     </div>
   )
 }

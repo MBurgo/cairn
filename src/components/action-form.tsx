@@ -8,10 +8,7 @@ type Action = (prev: ActionResult | null, formData: FormData) => Promise<ActionR
 
 /**
  * Wraps a server action so failures are shown and successes are confirmed.
- *
- * The confirmation matters as much as the error: Apple's Familiarity principle
- * asks for clear feedback, and before this, saving something looked identical
- * to nothing happening.
+ * Before this, saving something looked identical to nothing happening.
  */
 export function ActionForm({
   action,
@@ -44,10 +41,9 @@ export function ActionForm({
           <button
             type="submit"
             disabled={pending}
-            className={`-mx-3 inline-flex min-h-11 items-center rounded-sm px-3 text-sm font-medium
-                        underline underline-offset-4 disabled:opacity-50
-                        focus-visible:outline-2 focus-visible:outline-offset-2
-                        focus-visible:outline-accent ${
+            className={`-mx-2 inline-flex min-h-11 items-center rounded-lg px-2 text-sm
+                        disabled:opacity-50 focus-visible:outline-2
+                        focus-visible:outline-offset-2 focus-visible:outline-accent ${
                           destructive ? 'text-ink-faint hover:text-brass' : 'text-accent'
                         }`}
           >
@@ -56,9 +52,11 @@ export function ActionForm({
           {footnote ? <span className="text-sm text-ink-faint">{footnote}</span> : null}
         </div>
       ) : (
-        <div className="flex flex-wrap items-center gap-4">
+        <div className="flex flex-col gap-2">
           <Submit disabled={pending}>{pending ? (pendingLabel ?? 'Saving…') : submitLabel}</Submit>
-          {footnote ? <span className="text-sm text-ink-faint">{footnote}</span> : null}
+          {footnote ? (
+            <span className="text-center text-sm text-ink-faint">{footnote}</span>
+          ) : null}
         </div>
       )}
     </form>

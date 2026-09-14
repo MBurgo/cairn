@@ -30,8 +30,8 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex flex-col gap-5 rounded-sm border border-rule bg-raised p-6">
-      <h1 className="font-display text-2xl">Sign in</h1>
+    <div className="flex flex-col gap-6">
+      <h1 className="instruction">Sign in</h1>
       {error ? <Notice>{error}</Notice> : null}
       <form onSubmit={onSubmit} className="flex flex-col gap-4">
         <Field label="Email" name="email" type="email" autoComplete="email" />

@@ -1,50 +1,79 @@
 @import "tailwindcss";
 
+/*
+ * Cairn is meant to feel like a lamp-lit study, not a productivity tool.
+ *
+ * Two ideas carry the whole design:
+ *
+ *   1. Paper is a MATERIAL, not a theme. Anything a father writes — captures,
+ *      prayers, blessings, letters — lands on a warm sheet in both light and
+ *      dark, because it is going into a printed book. He should be able to see
+ *      at a glance what is kept and what is just the app talking.
+ *
+ *   2. Almost no borders. Space and tone separate things. Rules and outlines
+ *      everywhere is what made the earlier version read as a document.
+ */
+
 :root {
-  --ground: #e9ebe6;
-  --surface: #f8f8f5;
-  --raised: #fdfdfc;
-  --ink: #1a2622;
-  --ink-soft: #5c6b65;
-  --ink-faint: #86958f;
-  --rule: #c9cfc6;
-  --rule-soft: #dee2da;
+  --ground: #e7e9e3;
+  --raised: #f4f5f1;
+  --ink: #1a2320;
+  --ink-soft: #5b6a64;
+  --ink-faint: #8a968f;
+  --rule: #ccd2c9;
   --accent: #2f5d50;
-  --accent-ink: #f8f8f5;
-  --accent-soft: #e0e9e3;
+  --accent-ink: #f6f7f3;
   --brass: #8a6220;
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
-    --ground: #121917;
-    --surface: #1a2321;
-    --raised: #1e2825;
-    --ink: #e3e7e2;
-    --ink-soft: #9fada7;
-    --ink-faint: #74827c;
-    --rule: #2e3936;
-    --rule-soft: #26302d;
-    --accent: #79ae99;
-    --accent-ink: #121917;
-    --accent-soft: #1f2e29;
-    --brass: #c79a56;
+  :root:not([data-theme="light"]) {
+    --ground: #0f1412;
+    --raised: #1a211e;
+    --ink: #e7ebe5;
+    --ink-soft: #9aa9a1;
+    --ink-faint: #6d7b74;
+    --rule: #232b27;
+    --accent: #8fbca6;
+    --accent-ink: #0f1412;
+    --brass: #d4a85f;
   }
+}
+
+:root[data-theme="dark"] {
+  --ground: #0f1412;
+  --raised: #1a211e;
+  --ink: #e7ebe5;
+  --ink-soft: #9aa9a1;
+  --ink-faint: #6d7b74;
+  --rule: #232b27;
+  --accent: #8fbca6;
+  --accent-ink: #0f1412;
+  --brass: #d4a85f;
+}
+
+/* Paper does not change with the theme. That is the point of it. */
+:root {
+  --paper: #ede9df;
+  --paper-ink: #23211c;
+  --paper-soft: #5f5a4e;
+  --paper-edge: #ddd7c8;
 }
 
 @theme inline {
   --color-ground: var(--ground);
-  --color-surface: var(--surface);
   --color-raised: var(--raised);
   --color-ink: var(--ink);
   --color-ink-soft: var(--ink-soft);
   --color-ink-faint: var(--ink-faint);
   --color-rule: var(--rule);
-  --color-rule-soft: var(--rule-soft);
   --color-accent: var(--accent);
   --color-accent-ink: var(--accent-ink);
-  --color-accent-soft: var(--accent-soft);
   --color-brass: var(--brass);
+  --color-paper: var(--paper);
+  --color-paper-ink: var(--paper-ink);
+  --color-paper-soft: var(--paper-soft);
+  --color-paper-edge: var(--paper-edge);
 
   --font-display: var(--font-newsreader), Georgia, "Times New Roman", serif;
   --font-sans: var(--font-archivo), system-ui, -apple-system, sans-serif;
@@ -57,33 +86,55 @@ body {
   font-family: var(--font-sans);
   /*
    * The manifest asks for viewport-fit: cover so the app fills the screen when
-   * installed, which means content would otherwise run under the notch and the
-   * status bar. Applied once here rather than per component, or a page showing
-   * both the install banner and the masthead pads twice.
+   * installed, which means content would otherwise run under the notch.
+   * Applied once here rather than per component.
    */
   padding-top: env(safe-area-inset-top);
   padding-left: env(safe-area-inset-left);
   padding-right: env(safe-area-inset-right);
 }
 
-/*
- * Two voices. Anything a father writes that will be printed in his son's book
- * is set in the display serif on the raised surface; the interface around it
- * stays sans. One rule tells him, without a word of copy, what is kept and
- * what is just the app talking.
- */
-.kept {
-  font-family: var(--font-display);
-  font-size: 1.0625rem;
-  line-height: 1.65;
-  color: var(--ink);
-}
-
-/* Uppercase micro-labels, used throughout. */
+/* Uppercase micro-labels. */
 .eyebrow {
   font-family: var(--font-mono);
   font-size: 0.66rem;
-  letter-spacing: 0.13em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--ink-faint);
+}
+
+/* The week's instruction. The one thing on the screen allowed to be big. */
+.instruction {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 1.95rem;
+  line-height: 1.13;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+  color: var(--ink);
+}
+
+/* A sheet of paper. Everything a father writes lives on one. */
+.sheet {
+  background: var(--paper);
+  color: var(--paper-ink);
+  border-radius: 6px;
+  box-shadow: 0 10px 24px -18px rgba(0, 0, 0, 0.75);
+}
+
+/* His words, on the sheet. */
+.written {
+  font-family: var(--font-display);
+  font-size: 1.0625rem;
+  line-height: 1.62;
+  color: var(--paper-ink);
+}
+
+/* Dates and labels printed on the sheet rather than in the interface. */
+.stamp {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--paper-soft);
 }
