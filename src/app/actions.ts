@@ -209,6 +209,7 @@ export async function completeGroundwork(
       child_id: null,
       body,
       source_item_id: itemId,
+      chapter: 'groundwork',
     })
     if (error) return { error: error.message }
   }
@@ -280,6 +281,7 @@ export async function addCapture(
     family_id: familyId,
     child_id: childId || null,
     body,
+    chapter: 'the_years',
   })
   if (error) return { error: error.message }
 
@@ -414,4 +416,49 @@ export async function deletePrayer(
   revalidatePath('/')
   revalidatePath('/journal')
   return { ok: 'Deleted.' }
+}
+
+/**
+ * Naming the men around your sons. Deliberately not an invite: no accounts,
+ * no emails, no second user type. These men never open the app — the list is
+ * a memory aid for the father, and asking one of them to his face is the
+ * formative act an invite button would replace.
+ */
+export async function addMentor(
+  _prev: ActionResult | null,
+  formData: FormData
+): Promise<ActionResult> {
+  const name = String(formData.get('name') ?? '').trim()
+  const relationship = String(formData.get('relationship') ?? '').trim()
+  if (!name) return { error: 'Give him a name.' }
+
+  const familyId = await currentFamilyId()
+  if (!familyId) return { error: 'No family found.' }
+
+  const supabase = await createClient()
+  const { error } = await supabase
+    .from('mentors')
+    .insert({ family_id: familyId, name, relationship: relationship || null })
+  if (error) return { error: error.message }
+
+  revalidatePath('/')
+  revalidatePath('/sons')
+  return { ok: 'Added.' }
+}
+
+export async function deleteMentor(
+  _prev: ActionResult | null,
+  formData: FormData
+): Promise<ActionResult> {
+  const id = String(formData.get('id') ?? '')
+  const familyId = await currentFamilyId()
+  if (!familyId) return { error: 'No family found.' }
+
+  const supabase = await createClient()
+  const { error } = await supabase.from('mentors').delete().eq('id', id).eq('family_id', familyId)
+  if (error) return { error: error.message }
+
+  revalidatePath('/')
+  revalidatePath('/sons')
+  return { ok: 'Removed.' }
 }

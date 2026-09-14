@@ -52,6 +52,35 @@ export interface ArcItem {
   /** Something a father can say out loud, where a script helps. */
   opener?: string
   scripture?: string
+  /**
+   * Hard conversations run by an ordinary father fail when they become
+   * interrogations. Telling his own failure or fear first is what turns one
+   * into a conversation. Shown as the first thing under "how".
+   */
+  fatherFirst?: string
+  /**
+   * A third party is part of it. Mentor items are experiences with another
+   * man, and are never served until the father has named at least one.
+   */
+  involves?: 'mentor'
+}
+
+/** Which part of his son's book a piece of writing belongs to. */
+export type Chapter =
+  | 'house_sentence'
+  | 'groundwork'
+  | 'the_years'
+  | 'birthdays'
+  | 'prayers'
+  | 'mentor_letter'
+  | 'handover'
+  | 'sons_letter'
+
+export interface Mentor {
+  id: string
+  name: string
+  relationship: string | null
+  notes: string | null
 }
 
 /** What a groundwork week asks the father to actually do. */

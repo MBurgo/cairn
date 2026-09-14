@@ -66,6 +66,19 @@ body {
   padding-right: env(safe-area-inset-right);
 }
 
+/*
+ * Two voices. Anything a father writes that will be printed in his son's book
+ * is set in the display serif on the raised surface; the interface around it
+ * stays sans. One rule tells him, without a word of copy, what is kept and
+ * what is just the app talking.
+ */
+.kept {
+  font-family: var(--font-display);
+  font-size: 1.0625rem;
+  line-height: 1.65;
+  color: var(--ink);
+}
+
 /* Uppercase micro-labels, used throughout. */
 .eyebrow {
   font-family: var(--font-mono);
