@@ -27,6 +27,8 @@ function state(over: Partial<NudgeState> = {}): NudgeState {
     completed: new Set(),
     deferred: new Map(),
     groundworkSkipped: false,
+    mentors: [],
+    lastActivityOn: null,
     ...over,
   }
 }
@@ -246,5 +248,75 @@ test('every groundwork item has a summary', () => {
   for (const item of GROUNDWORK) {
     assert.ok(item.summary.length > 0, `${item.id} needs a summary`)
     assert.ok(!item.title.includes('{name}'), 'groundwork is about the father, not a son')
+  }
+})
+
+
+// ---- mentors ----
+
+const DAVE = { id: 'm1', name: 'Dave', relationship: 'uncle', notes: null }
+
+test('a mentor item is never served before a mentor has been named', () => {
+  const mentorItems = itemsForStage('wonder').filter((i) => i.involves === 'mentor')
+  assert.ok(mentorItems.length > 0, 'there should be at least one mentor item')
+
+  // Everything else done, so a mentor item is the only thing left.
+  const others = itemsForStage('wonder').filter((i) => i.involves !== 'mentor')
+  const done = new Set(others.flatMap((i) => SONS.map((s) => completionKey(i, s.id))))
+
+  assert.equal(
+    weeklyNudge(pastGroundwork({ completed: done, mentors: [] }), on),
+    null,
+    'with no mentors named, a mentor item must not be offered'
+  )
+  const withMentor = weeklyNudge(pastGroundwork({ completed: done, mentors: [DAVE] }), on)
+  assert.equal(withMentor?.type, 'arc')
+})
+
+test("a mentor's name is interpolated alongside the son's", () => {
+  const item = itemsForStage('wonder').find((i) => i.involves === 'mentor')!
+  const rendered = titleFor(item, 'Eli', 'Dave')
+  assert.ok(rendered.includes('Eli') && rendered.includes('Dave'))
+  assert.ok(!rendered.includes('{name}') && !rendered.includes('{mentor}'))
+})
+
+test('mentor items carry a mentor on the nudge so the title can render', () => {
+  const others = itemsForStage('wonder').filter((i) => i.involves !== 'mentor')
+  const done = new Set(others.flatMap((i) => SONS.map((s) => completionKey(i, s.id))))
+  const nudge = asArc(weeklyNudge(pastGroundwork({ completed: done, mentors: [DAVE] }), on))
+  assert.equal(nudge.item.involves, 'mentor')
+  assert.equal(nudge.mentor?.name, 'Dave')
+})
+
+// ---- re-ramp ----
+
+test('a father returning after a long silence gets something gentle, not a conversation', () => {
+  // Everything gentle and moderate done, so the curriculum points at a
+  // weighty conversation.
+  const upToConversations = itemsForStage('wonder').filter((i) => i.weight !== 'weighty')
+  const done = new Set(upToConversations.flatMap((i) => SONS.map((s) => completionKey(i, s.id))))
+
+  const active = asArc(weeklyNudge(pastGroundwork({ completed: done, lastActivityOn: '2026-09-06' }), on))
+  assert.equal(active.item.kind, 'conversation', 'an active father continues the curriculum')
+
+  const away = asArc(
+    weeklyNudge(pastGroundwork({ completed: done, lastActivityOn: '2026-01-05' }), on)
+  )
+  assert.notEqual(away.item.kind, 'conversation', 'a returning father should not land on one')
+})
+
+test('the re-ramp does not fire for a father who has never been away', () => {
+  const recent = asArc(weeklyNudge(pastGroundwork({ lastActivityOn: '2026-09-10' }), on))
+  const never = asArc(weeklyNudge(pastGroundwork({ lastActivityOn: null }), on))
+  assert.equal(recent.key, never.key)
+})
+
+test('father_first exists on the hardest conversations', () => {
+  const weighty = itemsForStage('wonder').filter(
+    (i) => i.kind === 'conversation' && i.weight === 'weighty'
+  )
+  assert.ok(weighty.length > 0)
+  for (const item of weighty) {
+    assert.ok(item.fatherFirst, `${item.id} is a hard conversation and needs father_first`)
   }
 })

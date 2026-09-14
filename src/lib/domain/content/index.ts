@@ -6,8 +6,10 @@ import { STAGE_ONE } from './stage-one'
  * Shared items cover every boy at once, so they carry no placeholder — a
  * content invariant the tests enforce rather than trusting.
  */
-export function titleFor(item: ArcItem, childName: string): string {
-  return item.title.replace(/\{name\}/g, childName)
+export function titleFor(item: ArcItem, childName: string, mentorName?: string): string {
+  return item.title
+    .replace(/\{name\}/g, childName)
+    .replace(/\{mentor\}/g, mentorName ?? 'him')
 }
 
 export { GROUNDWORK, groundworkById } from './groundwork'

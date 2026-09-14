@@ -71,6 +71,8 @@ export default async function HomePage({
     completed: ctx.completed,
     deferred: ctx.deferred,
     groundworkSkipped: ctx.family.groundworkSkipped,
+    mentors: ctx.mentors,
+    lastActivityOn: ctx.lastProgressOn,
   }
 
   const nudge = weeklyNudge(state, new Date(), skip)
@@ -95,7 +97,13 @@ export default async function HomePage({
         ) : null}
 
         {nudge?.type === 'arc' ? (
-          <ArcCard item={nudge.item} child={nudge.child} alternatives={alternatives} skip={skip} />
+          <ArcCard
+            item={nudge.item}
+            child={nudge.child}
+            mentor={nudge.mentor}
+            alternatives={alternatives}
+            skip={skip}
+          />
         ) : null}
 
         {!nudge ? (
@@ -162,7 +170,7 @@ export default async function HomePage({
         {latest ? (
           <section className="mt-12 flex flex-col gap-3">
             <p className="eyebrow">Lately</p>
-            <p className="line-clamp-3 text-ink-soft">{latest.body}</p>
+            <p className="kept line-clamp-3">{latest.body}</p>
             <Link href="/journal" className="text-sm font-medium text-accent underline">
               Everything you&apos;ve written
             </Link>

@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import { getFamilyContext } from '@/lib/data/family'
 import { clockFor } from '@/lib/domain/clock'
-import { addSon } from '@/app/actions'
+import { addSon, addMentor, deleteMentor } from '@/app/actions'
 import { Field } from '@/components/ui'
 import { Masthead } from '@/components/masthead'
 import { ActionForm } from '@/components/action-form'
@@ -53,7 +53,56 @@ export default async function SonsPage() {
           )}
         </section>
 
-        <section className="mt-10 flex flex-col gap-4">
+        {/* ---- The men around them. Deliberately a list, not a CRM. ---- */}
+        <section className="mt-12 flex flex-col gap-4">
+          <p className="eyebrow">The men around them</p>
+          {ctx.mentors.length === 0 ? (
+            <p className="max-w-prose text-ink-soft">
+              These men don&apos;t need the app. You do. Write down the four to eight men
+              you&apos;d want standing beside your sons — uncles, mates, men from church — and
+              Cairn will start suggesting things to ask them.
+            </p>
+          ) : (
+            <div className="flex flex-col divide-y divide-rule border-y border-rule">
+              {ctx.mentors.map((mentor) => (
+                <div key={mentor.id} className="flex flex-col gap-1 py-4">
+                  <div className="flex flex-wrap items-baseline gap-x-4">
+                    <p className="font-display text-lg">{mentor.name}</p>
+                    {mentor.relationship ? (
+                      <p className="text-sm text-ink-soft">{mentor.relationship}</p>
+                    ) : null}
+                  </div>
+                  <ActionForm
+                    action={deleteMentor}
+                    variant="link"
+                    submitLabel="Remove"
+                    pendingLabel="Removing…"
+                    destructive
+                    className="flex"
+                  >
+                    <input type="hidden" name="id" value={mentor.id} />
+                  </ActionForm>
+                </div>
+              ))}
+            </div>
+          )}
+          <ActionForm
+            action={addMentor}
+            submitLabel="Add him"
+            pendingLabel="Adding…"
+            className="flex flex-col gap-4 rounded-sm border border-rule bg-raised p-6"
+          >
+            <Field label="His name" name="name" placeholder="e.g. Dave" />
+            <Field
+              label="How your sons know him"
+              name="relationship"
+              required={false}
+              placeholder="e.g. uncle, youth leader, mate from church"
+            />
+          </ActionForm>
+        </section>
+
+        <section className="mt-12 flex flex-col gap-4">
           <p className="eyebrow">Add a son</p>
           <ActionForm
             action={addSon}

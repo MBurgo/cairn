@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import type { ArcItem, Child, GroundworkItem } from '@/lib/domain/types'
+import type { ArcItem, Child, GroundworkItem, Mentor } from '@/lib/domain/types'
 import { titleFor } from '@/lib/domain/content'
 import { completeGroundwork, deferItem, setItemDone, skipGroundwork } from '@/app/actions'
 import { ActionForm } from '@/components/action-form'
@@ -79,7 +79,7 @@ export function GroundworkCard({
         <Prose text={item.detail} className="text-ink-soft" />
         {item.scripture ? <Scripture reference={item.scripture} /> : null}
         <div className="flex flex-col gap-3">
-          <ActionForm action={deferItem} variant="link" submitLabel="Not this week" destructive>
+          <ActionForm action={deferItem} variant="link" submitLabel="Not this week">
             <input type="hidden" name="itemId" value={item.id} />
           </ActionForm>
           <form action={skipGroundwork}>
@@ -111,11 +111,13 @@ function stepLabel(step: number, total: number): string {
 export function ArcCard({
   item,
   child,
+  mentor,
   alternatives,
   skip,
 }: {
   item: ArcItem
   child: Child
+  mentor?: Mentor
   alternatives: number
   skip: number
 }) {
@@ -123,7 +125,7 @@ export function ArcCard({
     <section className="flex flex-col gap-6">
       <Heading
         kind={`This week · ${KIND_LABEL[item.kind].toLowerCase()}`}
-        title={titleFor(item, child.name)}
+        title={titleFor(item, child.name, mentor?.name)}
       />
       <p className="text-ink-soft">{item.summary}</p>
 
@@ -139,6 +141,12 @@ export function ArcCard({
       </ActionForm>
 
       <More label="Why this one, and how">
+        {item.fatherFirst ? (
+          <p className="border-l-2 border-l-brass bg-surface px-4 py-3 text-ink">
+            <span className="eyebrow block pb-1">Go first</span>
+            {item.fatherFirst}
+          </p>
+        ) : null}
         <p className="text-ink-soft">{item.detail}</p>
         {item.opener ? (
           <p className="border-l-2 border-l-accent bg-surface px-4 py-3 font-display text-lg italic">
@@ -147,7 +155,7 @@ export function ArcCard({
         ) : null}
         {item.scripture ? <Scripture reference={item.scripture} /> : null}
         <div className="flex flex-col gap-2">
-          <ActionForm action={deferItem} variant="link" submitLabel="Not yet" destructive>
+          <ActionForm action={deferItem} variant="link" submitLabel="Not yet">
             <input type="hidden" name="itemId" value={item.id} />
             <input type="hidden" name="childId" value={child.id} />
           </ActionForm>

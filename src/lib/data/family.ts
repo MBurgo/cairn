@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { supabaseEnv } from '@/lib/supabase/env'
-import type { Child } from '@/lib/domain/types'
+import type { Child, Mentor } from '@/lib/domain/types'
 
 export interface FamilyContext {
   userEmail: string
@@ -10,6 +10,9 @@ export interface FamilyContext {
   completed: Set<string>
   /** Completion key → ISO date it becomes available again. */
   deferred: Map<string, string>
+  mentors: Mentor[]
+  /** Most recent completed item, for the re-ramp. Null if he's done nothing. */
+  lastProgressOn: string | null
 }
 
 interface ProgressRow {
@@ -17,6 +20,7 @@ interface ProgressRow {
   item_id: string
   status: string
   deferred_until: string | null
+  completed_on: string | null
 }
 
 function keyFor(row: Pick<ProgressRow, 'child_id' | 'item_id'>): string {
@@ -55,10 +59,12 @@ export async function getFamilyContext(): Promise<FamilyContext | null> {
       children: [],
       completed: new Set(),
       deferred: new Map(),
+      mentors: [],
+      lastProgressOn: null,
     }
   }
 
-  const [{ data: children }, { data: progress }] = await Promise.all([
+  const [{ data: children }, { data: progress }, { data: mentors }] = await Promise.all([
     supabase
       .from('children')
       .select('id, name, birthdate')
@@ -66,15 +72,27 @@ export async function getFamilyContext(): Promise<FamilyContext | null> {
       .order('birthdate', { ascending: true }),
     supabase
       .from('arc_progress')
-      .select('child_id, item_id, status, deferred_until')
+      .select('child_id, item_id, status, deferred_until, completed_on')
       .eq('family_id', row.id),
+    supabase
+      .from('mentors')
+      .select('id, name, relationship, notes')
+      .eq('family_id', row.id)
+      .order('created_at', { ascending: true }),
   ])
 
   const completed = new Set<string>()
   const deferred = new Map<string, string>()
+  let lastProgressOn: string | null = null
   for (const p of (progress ?? []) as ProgressRow[]) {
-    if (p.status === 'deferred' && p.deferred_until) deferred.set(keyFor(p), p.deferred_until)
-    else completed.add(keyFor(p))
+    if (p.status === 'deferred' && p.deferred_until) {
+      deferred.set(keyFor(p), p.deferred_until)
+    } else {
+      completed.add(keyFor(p))
+      if (p.completed_on && (!lastProgressOn || p.completed_on > lastProgressOn)) {
+        lastProgressOn = p.completed_on
+      }
+    }
   }
 
   return {
@@ -88,5 +106,7 @@ export async function getFamilyContext(): Promise<FamilyContext | null> {
     children: (children ?? []) as Child[],
     completed,
     deferred,
+    mentors: (mentors ?? []) as Mentor[],
+    lastProgressOn,
   }
 }

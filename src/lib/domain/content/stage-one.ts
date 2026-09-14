@@ -17,7 +17,7 @@ export const STAGE_ONE: ArcItem[] = [
   // ---- Conversations ----
   {
     id: 'w-conv-babies',
-    order: 15,
+    order: 17,
     weight: 'weighty',
     stage: 'wonder',
     kind: 'conversation',
@@ -26,12 +26,14 @@ export const STAGE_ONE: ArcItem[] = [
     summary: 'Plain, accurate, and years before he needs it.',
     detail:
       'The goal is not to explain everything; it is to establish that you are the person who answers this kind of question without going strange. Do it on a drive or a walk, where neither of you has to make eye contact.',
+    fatherFirst:
+      'Say first that nobody explained this properly to you, or that whoever did made it awkward. Naming your own discomfort out loud is what stops you handing it on.',
     opener:
       '"Do you know how babies actually get made? Ask me anything you like about it — I won\'t be weird about it."',
   },
   {
     id: 'w-conv-death',
-    order: 14,
+    order: 16,
     weight: 'weighty',
     stage: 'wonder',
     kind: 'conversation',
@@ -39,7 +41,9 @@ export const STAGE_ONE: ArcItem[] = [
     title: 'Talk to {name} about death, when it comes up',
     summary: "Let him be sad first. Don't rush to the comfort.",
     detail:
-      'Usually triggered by a pet, a grandparent, or a question out of nowhere at bedtime. Say you find it sad too, and only then say what you believe about it. A boy who learns his father can sit in a sad thing without fixing it will bring him the hard things later.',
+      'Usually triggered by a pet, a grandparent, or a question out of nowhere at bedtime. A boy who learns his father can sit in a sad thing without fixing it will bring him the hard things later.',
+    fatherFirst:
+      'Tell him about the first death you remember and how old you were. Say that you found it frightening, if you did. Then let him be sad before you say anything you believe.',
     scripture: 'Psalm 23',
   },
   {
@@ -205,10 +209,37 @@ export const STAGE_ONE: ArcItem[] = [
       'Alongside you, not instead of you. At this age he learns generosity by watching his father do it and being handed a job.',
   },
 
+  // ---- The men around him ----
+  {
+    id: 'w-men-name-them',
+    order: 14,
+    weight: 'moderate',
+    stage: 'wonder',
+    kind: 'experience',
+    scope: 'shared',
+    title: "Write down the men you'd want standing beside your sons",
+    summary: 'Four to eight names. Uncles, mates, men from church.',
+    detail:
+      'The single thing that most predicts whether a boy keeps his faith into adulthood is not a better-prepared father — it is several other adults genuinely invested in him. You cannot manufacture that at eighteen. Write the names now and you find out who is actually around your sons, or that nobody is, with years to do something about it.\n\nThese men never need the app. This list is for you.',
+  },
+  {
+    id: 'w-men-first-ask',
+    order: 15,
+    weight: 'moderate',
+    stage: 'wonder',
+    kind: 'experience',
+    scope: 'individual',
+    involves: 'mentor',
+    title: 'Ask {mentor} to spend an afternoon with {name}',
+    summary: 'Just him and your son. You do not come.',
+    detail:
+      'Fishing, the workshop, the footy, a job that needs two people. The point is that your son spends real time with a man who is not his father and who chose to be there.\n\nAsk him in person or on the phone, not by text. Tell him plainly why you are asking, because that is the part that lands: you want other men in your son\'s life before he is old enough to go looking for them himself.',
+  },
+
   // ---- The rite ----
   {
     id: 'w-rite-first-trip',
-    order: 16,
+    order: 18,
     weight: 'weighty',
     stage: 'wonder',
     kind: 'rite',

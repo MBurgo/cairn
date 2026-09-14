@@ -1,10 +1,10 @@
 import { GROUNDWORK, itemsForStage } from './content'
 import { clockFor } from './clock'
-import type { ArcItem, Child, GroundworkItem } from './types'
+import type { ArcItem, Child, GroundworkItem, Mentor, Weight } from './types'
 
 export type Nudge =
   | { type: 'groundwork'; item: GroundworkItem; key: string }
-  | { type: 'arc'; child: Child; item: ArcItem; key: string }
+  | { type: 'arc'; child: Child; item: ArcItem; key: string; mentor?: Mentor }
 
 export interface NudgeState {
   children: Child[]
@@ -14,6 +14,30 @@ export interface NudgeState {
   deferred: Map<string, string>
   /** A father who says he already knows how this works. */
   groundworkSkipped: boolean
+  /** Named by the father. Mentor items are never served before there is one. */
+  mentors: Mentor[]
+  /** ISO date of the last thing he did, for the re-ramp. */
+  lastActivityOn: string | null
+}
+
+const RE_RAMP_AFTER_WEEKS = 8
+const WEIGHT_RANK: Record<Weight, number> = { gentle: 0, moderate: 1, weighty: 2 }
+
+function weeksBetween(from: string, to: Date): number {
+  const [y, m, d] = from.split('-').map(Number)
+  const ms = to.getTime() - new Date(y, m - 1, d).getTime()
+  return ms / (7 * 24 * 60 * 60 * 1000)
+}
+
+/**
+ * Has he been away long enough that the curriculum position is the wrong place
+ * to restart? The ramp exists because conversations need goodwill banked first,
+ * and that is as true after four months away as it was in week one. Landing a
+ * returning father on the pornography conversation loses him.
+ */
+function returning(state: NudgeState, on: Date): boolean {
+  if (!state.lastActivityOn) return false
+  return weeksBetween(state.lastActivityOn, on) >= RE_RAMP_AFTER_WEEKS
 }
 
 /**
@@ -67,17 +91,37 @@ function arcCandidates(state: NudgeState, on: Date): Nudge[] {
   const week = isoWeek(on)
   const out: Nudge[] = []
 
+  const isReturning = returning(state, on)
+
   for (let offset = 0; offset < eligible.length; offset++) {
     const { child, clock } = eligible[(week + offset) % eligible.length]
-    const outstanding = itemsForStage(clock.stage!.key).filter((item) =>
-      available(completionKey(item, child.id), state, on)
-    )
-    const ordered = [
-      ...outstanding.filter((i) => i.kind !== 'rite'),
-      ...outstanding.filter((i) => i.kind === 'rite'),
-    ]
+    const outstanding = itemsForStage(clock.stage!.key).filter((item) => {
+      if (!available(completionKey(item, child.id), state, on)) return false
+      // A mentor item cannot interpolate a name that doesn't exist yet.
+      if (item.involves === 'mentor' && state.mentors.length === 0) return false
+      return true
+    })
+
+    // Coming back after a long silence, restart on the gentlest thing he can
+    // do with his son rather than wherever the curriculum happens to point.
+    const ordered = isReturning
+      ? [...outstanding].sort((a, b) => {
+          const conv = Number(a.kind === 'conversation') - Number(b.kind === 'conversation')
+          if (conv !== 0) return conv
+          const w = WEIGHT_RANK[a.weight] - WEIGHT_RANK[b.weight]
+          return w !== 0 ? w : a.order - b.order
+        })
+      : [
+          ...outstanding.filter((i) => i.kind !== 'rite'),
+          ...outstanding.filter((i) => i.kind === 'rite'),
+        ]
+
     for (const item of ordered) {
-      out.push({ type: 'arc', child, item, key: completionKey(item, child.id) })
+      const mentor =
+        item.involves === 'mentor'
+          ? state.mentors[(week + offset) % state.mentors.length]
+          : undefined
+      out.push({ type: 'arc', child, item, key: completionKey(item, child.id), mentor })
     }
   }
   return out

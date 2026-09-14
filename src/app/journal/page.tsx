@@ -80,7 +80,7 @@ export default async function JournalPage() {
                       {capture.occurredOn} · {nameOf(capture.childId)}
                       {source?.captureLabel ? ` · ${source.captureLabel}` : ''}
                     </p>
-                    <p className="whitespace-pre-wrap text-ink">{capture.body}</p>
+                    <p className="kept whitespace-pre-wrap">{capture.body}</p>
                     <ActionForm
                       action={deleteCapture}
                       variant="link"
@@ -107,7 +107,7 @@ export default async function JournalPage() {
                   <p className="font-mono text-xs tracking-wider text-ink-faint uppercase">
                     {prayer.loggedOn} · {nameOf(prayer.childId)} · back on {prayer.nextReviewOn}
                   </p>
-                  <p className="font-display text-lg italic">&ldquo;{prayer.body}&rdquo;</p>
+                  <p className="kept italic">&ldquo;{prayer.body}&rdquo;</p>
                   <ActionForm
                     action={deletePrayer}
                     variant="link"
@@ -136,7 +136,7 @@ export default async function JournalPage() {
                       {prayer.loggedOn} · {nameOf(prayer.childId)} ·{' '}
                       {OUTCOME_LABEL[prayer.status] ?? prayer.status}
                     </p>
-                    <p className="font-display text-lg italic">&ldquo;{prayer.body}&rdquo;</p>
+                    <p className="kept italic">&ldquo;{prayer.body}&rdquo;</p>
                     {review?.note ? (
                       <p className="text-sm text-ink-soft">{review.note}</p>
                     ) : null}
