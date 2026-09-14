@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next'
 import { Newsreader, Archivo, IBM_Plex_Mono } from 'next/font/google'
 import './globals.css'
 import { InstallPrompt, ServiceWorker } from '@/components/pwa'
+import { Tabs } from '@/components/tabs'
 
 const newsreader = Newsreader({ variable: '--font-newsreader', subsets: ['latin'], display: 'swap' })
 const archivo = Archivo({ variable: '--font-archivo', subsets: ['latin'], display: 'swap' })
@@ -38,6 +39,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <ServiceWorker />
         <InstallPrompt />
         {children}
+        <Tabs />
       </body>
     </html>
   )

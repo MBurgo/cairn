@@ -152,7 +152,7 @@ export const STAGE_ONE: ArcItem[] = [
     title: 'First night in a tent',
     detail:
       'Somewhere with no lights, so he sees the sky properly once. This is the natural home of the Psalm 8 conversation — you will not have to engineer it, just be awake for it.',
-    scripture: 'Psalm 8',
+    scripture: 'Psalm 8:3–4',
   },
   {
     id: 'w-exp-build',
