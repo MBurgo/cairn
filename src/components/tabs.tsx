@@ -7,8 +7,9 @@ import { usePathname } from 'next/navigation'
 const HIDDEN_ON = ['/login', '/signup', '/setup', '/offline']
 
 const TABS = [
-  { href: '/', label: 'This week' },
+  { href: '/', label: 'Home' },
   { href: '/arc', label: 'The arc' },
+  { href: '/journal', label: 'Journal' },
   { href: '/sons', label: 'Sons' },
 ]
 

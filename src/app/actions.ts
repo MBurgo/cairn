@@ -247,3 +247,122 @@ export async function signOut(): Promise<void> {
   await supabase.auth.signOut()
   redirect('/login')
 }
+
+/** Months until a prayer comes back and asks what happened. */
+const REVIEW_MONTHS = [3, 6, 12] as const
+
+function monthsFromNow(months: number): string {
+  const d = new Date()
+  const target = new Date(d.getFullYear(), d.getMonth() + months, d.getDate())
+  return `${target.getFullYear()}-${String(target.getMonth() + 1).padStart(2, '0')}-${String(target.getDate()).padStart(2, '0')}`
+}
+
+/**
+ * Write something down. The everyday action — thirty seconds, needs nothing
+ * from his son, and goes into the book. Deliberately available from day one,
+ * including during groundwork.
+ */
+export async function addCapture(
+  _prev: ActionResult | null,
+  formData: FormData
+): Promise<ActionResult> {
+  const body = String(formData.get('body') ?? '').trim()
+  const childId = String(formData.get('childId') ?? '')
+  if (!body) return { error: 'Write something first.' }
+
+  const familyId = await currentFamilyId()
+  if (!familyId) return { error: 'No family found.' }
+
+  const supabase = await createClient()
+  const { error } = await supabase.from('captures').insert({
+    family_id: familyId,
+    child_id: childId || null,
+    body,
+  })
+  if (error) return { error: error.message }
+
+  revalidatePath('/')
+  revalidatePath('/journal')
+  return {}
+}
+
+/**
+ * Log a prayer over a son, with the date it should come back and ask what
+ * happened. The resurfacing is the entire point — a prayer journal nobody
+ * rereads is a diary you feel guilty about.
+ */
+export async function addPrayer(
+  _prev: ActionResult | null,
+  formData: FormData
+): Promise<ActionResult> {
+  const body = String(formData.get('body') ?? '').trim()
+  const childId = String(formData.get('childId') ?? '')
+  const scripture = String(formData.get('scriptureRef') ?? '').trim()
+  const months = Number(formData.get('reviewMonths'))
+
+  if (!body) return { error: 'Write the prayer first.' }
+  if (!childId) return { error: 'Which son is this for?' }
+  if (!REVIEW_MONTHS.includes(months as (typeof REVIEW_MONTHS)[number])) {
+    return { error: 'Choose when to be asked about it.' }
+  }
+
+  const familyId = await currentFamilyId()
+  if (!familyId) return { error: 'No family found.' }
+
+  const supabase = await createClient()
+  const { error } = await supabase.from('prayers').insert({
+    family_id: familyId,
+    child_id: childId,
+    body,
+    scripture_ref: scripture || null,
+    next_review_on: monthsFromNow(months),
+  })
+  if (error) return { error: error.message }
+
+  revalidatePath('/')
+  revalidatePath('/journal')
+  return {}
+}
+
+/**
+ * Answering "what happened?" Either it closes, or it goes back in the queue —
+ * never silently disappears, because the record of what was asked and what
+ * came of it is the chapter worth printing.
+ */
+export async function reviewPrayer(
+  _prev: ActionResult | null,
+  formData: FormData
+): Promise<ActionResult> {
+  const prayerId = String(formData.get('prayerId') ?? '')
+  const outcome = String(formData.get('outcome') ?? '')
+  const note = String(formData.get('note') ?? '').trim()
+
+  if (!prayerId) return { error: 'Missing prayer.' }
+  if (!['answered', 'changed', 'waiting'].includes(outcome)) return { error: 'Pick an outcome.' }
+
+  const familyId = await currentFamilyId()
+  if (!familyId) return { error: 'No family found.' }
+
+  const supabase = await createClient()
+  const { error: reviewError } = await supabase
+    .from('prayer_reviews')
+    .insert({ prayer_id: prayerId, outcome, note: note || null })
+  if (reviewError) return { error: reviewError.message }
+
+  // Still waiting goes back in the queue; anything else closes it.
+  const update =
+    outcome === 'waiting'
+      ? { next_review_on: monthsFromNow(6) }
+      : { status: outcome, next_review_on: monthsFromNow(120) }
+
+  const { error } = await supabase
+    .from('prayers')
+    .update(update)
+    .eq('id', prayerId)
+    .eq('family_id', familyId)
+  if (error) return { error: error.message }
+
+  revalidatePath('/')
+  revalidatePath('/journal')
+  return {}
+}

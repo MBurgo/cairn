@@ -11,9 +11,12 @@ import {
   type NudgeState,
 } from '@/lib/domain/nudge'
 import { GROUNDWORK, itemsForStage } from '@/lib/domain/content'
+import { getJournal } from '@/lib/data/journal'
 import { Notice } from '@/components/ui'
 import { Masthead } from '@/components/masthead'
 import { ArcCard, GroundworkCard } from '@/components/nudges'
+import { QuickCapture, QuickPrayer } from '@/components/quick'
+import { PrayerReviewCard } from '@/components/prayer-review'
 
 /**
  * Per-user content: never prerender this. A cached copy would be one
@@ -54,6 +57,10 @@ export default async function HomePage({
   const nudge = weeklyNudge(state, new Date(), skip)
   const groundwork = groundworkProgress(state)
   const alternatives = alternativeCount(state)
+  const journal = await getJournal(ctx.family.id)
+  const nameOf = (id: string | null) =>
+    id ? (ctx.children.find((c) => c.id === id)?.name ?? 'Him') : 'All of them'
+  const recent = journal.captures.slice(0, 3)
 
   return (
     <>
@@ -96,7 +103,34 @@ export default async function HomePage({
               ← Back to this week&apos;s
             </Link>
           ) : null}
+
+          {nudge ? (
+            <p className="text-sm text-ink-faint">
+              Nothing here is overdue, and Cairn doesn&apos;t keep score. If this isn&apos;t the
+              week for it, leave it — it will still be here.
+            </p>
+          ) : null}
         </section>
+
+        {/* ---- Always available, whatever this week's thing is ---- */}
+        <section className="mt-10 flex flex-col gap-3">
+          <p className="eyebrow">Any time</p>
+          <QuickCapture sons={ctx.children} />
+          <QuickPrayer sons={ctx.children} />
+        </section>
+
+        {/* ---- Prayers that have come back to ask what happened ---- */}
+        {journal.due.length > 0 ? (
+          <section className="mt-12 flex flex-col gap-4">
+            <p className="eyebrow">You prayed this a while ago</p>
+            <PrayerReviewCard prayer={journal.due[0]} childName={nameOf(journal.due[0].childId)} />
+            {journal.due.length > 1 ? (
+              <Link href="/journal" className="self-start text-sm font-medium text-accent underline">
+                {journal.due.length - 1} more waiting on you
+              </Link>
+            ) : null}
+          </section>
+        ) : null}
 
         {/* ---- Where each boy is up to ---- */}
         {ctx.children.length > 0 ? (
@@ -131,6 +165,26 @@ export default async function HomePage({
                 )
               })}
             </div>
+          </section>
+        ) : null}
+
+        {/* ---- A bit of history, so it reads as a place rather than a task ---- */}
+        {recent.length > 0 ? (
+          <section className="mt-12 flex flex-col gap-4">
+            <p className="eyebrow">Lately</p>
+            <div className="flex flex-col divide-y divide-rule border-y border-rule">
+              {recent.map((capture) => (
+                <article key={capture.id} className="flex flex-col gap-1.5 py-4">
+                  <p className="font-mono text-xs tracking-wider text-ink-faint uppercase">
+                    {capture.occurredOn} · {nameOf(capture.childId)}
+                  </p>
+                  <p className="line-clamp-3 text-sm text-ink-soft">{capture.body}</p>
+                </article>
+              ))}
+            </div>
+            <Link href="/journal" className="self-start text-sm font-medium text-accent underline">
+              Everything you&apos;ve written
+            </Link>
           </section>
         ) : null}
       </main>
