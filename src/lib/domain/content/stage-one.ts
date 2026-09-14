@@ -7,8 +7,11 @@ import type { ArcItem } from '../types'
  * Grouped below by kind for readability, but the order a father is ASKED is
  * the `order` field, which ramps deliberately: things you do together first,
  * conversations only once a few months of goodwill are banked, and the rite
- * last. Without that, the first thing a new father ever sees is "where babies
- * come from", which is how you lose him in week one.
+ * last.
+ *
+ * Titles are instructions, in the imperative, with `{name}` standing in for
+ * his son. They are not headlines: a father reading one on a Tuesday needs to
+ * know what to do, not to be impressed.
  */
 export const STAGE_ONE: ArcItem[] = [
   // ---- Conversations ----
@@ -19,9 +22,10 @@ export const STAGE_ONE: ArcItem[] = [
     stage: 'wonder',
     kind: 'conversation',
     scope: 'individual',
-    title: 'Where babies come from — the first pass',
+    title: 'Tell {name} where babies come from',
+    summary: 'Plain, accurate, and years before he needs it.',
     detail:
-      'Plain, accurate, unembarrassed, and years before he needs it. The goal is not to explain everything; it is to establish that you are the person who answers this kind of question without going strange. Do it on a drive or a walk, where neither of you has to make eye contact.',
+      'The goal is not to explain everything; it is to establish that you are the person who answers this kind of question without going strange. Do it on a drive or a walk, where neither of you has to make eye contact.',
     opener:
       '"Do you know how babies actually get made? Ask me anything you like about it — I won\'t be weird about it."',
   },
@@ -32,9 +36,10 @@ export const STAGE_ONE: ArcItem[] = [
     stage: 'wonder',
     kind: 'conversation',
     scope: 'individual',
-    title: 'Death, when it comes up',
+    title: 'Talk to {name} about death, when it comes up',
+    summary: "Let him be sad first. Don't rush to the comfort.",
     detail:
-      'Usually triggered by a pet, a grandparent, or a question out of nowhere at bedtime. Do not rush to the comfort. Let him be sad first, say you find it sad too, and only then say what you believe about it. A boy who learns his father can sit in a sad thing without fixing it will bring him the hard things later.',
+      'Usually triggered by a pet, a grandparent, or a question out of nowhere at bedtime. Say you find it sad too, and only then say what you believe about it. A boy who learns his father can sit in a sad thing without fixing it will bring him the hard things later.',
     scripture: 'Psalm 23',
   },
   {
@@ -44,9 +49,10 @@ export const STAGE_ONE: ArcItem[] = [
     stage: 'wonder',
     kind: 'conversation',
     scope: 'shared',
-    title: 'Why we actually go to church',
+    title: 'Tell them why you actually go to church',
+    summary: 'In your own words, in about two sentences.',
     detail:
-      'At this age he assumes it is simply what your family does, like the football team you support. Give him the real reason, in one or two sentences, in your own words. If the honest answer includes something you find difficult about it, say that too — it costs you nothing now and buys a great deal at fifteen.',
+      'At this age he assumes it is simply what your family does, like the football team you support. Give him the real reason. If the honest answer includes something you find difficult about it, say that too — it costs you nothing now and buys a great deal at fifteen.',
   },
   {
     id: 'w-conv-fear',
@@ -55,9 +61,10 @@ export const STAGE_ONE: ArcItem[] = [
     stage: 'wonder',
     kind: 'conversation',
     scope: 'individual',
-    title: 'What to do when you are frightened',
+    title: "Give {name} something to do when he's frightened",
+    summary: 'A sentence to pray, a place to come, a light he can turn on.',
     detail:
-      'Give him something concrete to do rather than a reassurance that it will be fine — a sentence to pray, a place to come, a light he is allowed to turn on. Tell him what frightens you, briefly and truthfully. Being told that his father is also sometimes afraid is one of the most stabilising things a boy can hear.',
+      'Something concrete to do, rather than a reassurance that it will be fine. Tell him what frightens you, briefly and truthfully. Being told that his father is also sometimes afraid is one of the most stabilising things a boy can hear.',
     scripture: 'Psalm 56:3',
   },
   {
@@ -67,9 +74,10 @@ export const STAGE_ONE: ArcItem[] = [
     stage: 'wonder',
     kind: 'conversation',
     scope: 'individual',
-    title: 'That he was made on purpose',
+    title: 'Tell {name} he was made on purpose',
+    summary: 'Name a trait that is genuinely his, and say it was given to him.',
     detail:
-      'Not a single talk — a thing you say more than once, in specifics. Name a trait that is actually his and tell him it was given to him rather than acquired. This is the seed of the blessing you will speak over him at thirteen, and it should not be the first time he hears the idea.',
+      'Not a single talk — a thing you say more than once, in specifics. This is the seed of the blessing you will speak over him at thirteen, and it should not be the first time he hears the idea.',
     scripture: 'Psalm 139:13–14',
   },
 
@@ -81,9 +89,10 @@ export const STAGE_ONE: ArcItem[] = [
     stage: 'wonder',
     kind: 'competency',
     scope: 'individual',
-    title: 'Swim properly',
+    title: 'Make sure {name} can properly swim',
+    summary: 'Not survive in water — swim.',
     detail:
-      'Not survive in water — swim. In Australia this is a safety issue before it is a competency, and it opens the door to half the experiences in the next three stages.',
+      'In Australia this is a safety issue before it is a competency, and it opens the door to half the experiences in the next three stages.',
   },
   {
     id: 'w-comp-ride',
@@ -92,9 +101,10 @@ export const STAGE_ONE: ArcItem[] = [
     stage: 'wonder',
     kind: 'competency',
     scope: 'individual',
-    title: 'Ride confidently, and fall off',
+    title: 'Get {name} riding confidently — and let him fall off',
+    summary: 'Both halves matter.',
     detail:
-      'Both halves matter. A boy who has come off and got back on has learned something about himself that no amount of encouragement transmits.',
+      'A boy who has come off and got back on has learned something about himself that no amount of encouragement transmits.',
   },
   {
     id: 'w-comp-tool',
@@ -103,9 +113,10 @@ export const STAGE_ONE: ArcItem[] = [
     stage: 'wonder',
     kind: 'competency',
     scope: 'individual',
-    title: 'Use a real tool without losing a finger',
+    title: 'Let {name} use a real tool',
+    summary: 'A proper hammer, a handsaw, a sharp knife. Supervised.',
     detail:
-      'A proper hammer, a handsaw, a sharp knife in the kitchen. Real tools, real risk, supervised. The message underneath is the one that matters: you are trusted with something that could hurt you.',
+      'Real tools, real risk. The message underneath is the one that matters: you are trusted with something that could hurt you.',
   },
   {
     id: 'w-comp-cook',
@@ -114,9 +125,9 @@ export const STAGE_ONE: ArcItem[] = [
     stage: 'wonder',
     kind: 'competency',
     scope: 'individual',
-    title: 'Cook one meal start to finish',
-    detail:
-      'One dish he owns completely and can make for the family without help. Let it be bad the first few times and eat it anyway.',
+    title: 'Teach {name} to cook one meal start to finish',
+    summary: 'One dish he owns completely and can make for the family.',
+    detail: 'Let it be bad the first few times and eat it anyway.',
   },
   {
     id: 'w-comp-adults',
@@ -125,9 +136,10 @@ export const STAGE_ONE: ArcItem[] = [
     stage: 'wonder',
     kind: 'competency',
     scope: 'individual',
-    title: 'Look an adult in the eye and answer the question',
+    title: 'Teach {name} to look an adult in the eye and answer',
+    summary: 'Let him order his own food and thank the host by name.',
     detail:
-      'Practise it deliberately: order his own food, ask the shopkeeper, thank the host by name. Small, repeated, and it compounds into something people will describe as confidence for the rest of his life.',
+      'Practise it deliberately, and often. Small, repeated, and it compounds into something people will describe as confidence for the rest of his life.',
   },
   {
     id: 'w-comp-money',
@@ -136,9 +148,10 @@ export const STAGE_ONE: ArcItem[] = [
     stage: 'wonder',
     kind: 'competency',
     scope: 'individual',
-    title: 'Hold his own money, and lose some of it',
+    title: 'Give {name} his own money — including the freedom to waste it',
+    summary: 'The disappointment is the lesson, and it is cheap at ten.',
     detail:
-      'A small amount that is genuinely his, including the freedom to waste it on something disappointing. The disappointment is the lesson and it is much cheaper now than at nineteen.',
+      'A small amount that is genuinely his, including the freedom to spend it on something that turns out to be rubbish. Much cheaper now than at nineteen.',
   },
 
   // ---- Experiences ----
@@ -149,9 +162,10 @@ export const STAGE_ONE: ArcItem[] = [
     stage: 'wonder',
     kind: 'experience',
     scope: 'shared',
-    title: 'First night in a tent',
+    title: 'Sleep a night in a tent',
+    summary: 'Somewhere dark enough that he sees the sky properly once.',
     detail:
-      'Somewhere with no lights, so he sees the sky properly once. This is the natural home of the Psalm 8 conversation — you will not have to engineer it, just be awake for it.',
+      'This is the natural home of the Psalm 8 conversation — you will not have to engineer it, just be awake for it.',
     scripture: 'Psalm 8:3–4',
   },
   {
@@ -161,9 +175,10 @@ export const STAGE_ONE: ArcItem[] = [
     stage: 'wonder',
     kind: 'experience',
     scope: 'shared',
-    title: 'Build one thing together that lasts',
+    title: 'Build something together that will still be here in ten years',
+    summary: 'A box, a shelf, a go-kart, a garden bed.',
     detail:
-      'A box, a shelf, a go-kart, a garden bed. Something that will still exist in ten years and that he can point at. Let his part be visibly his, mistakes included — do not tidy up his work after he goes to bed.',
+      'Let his part be visibly his, mistakes included — do not tidy up his work after he goes to bed. The point is that he can point at it later.',
   },
   {
     id: 'w-exp-alone-day',
@@ -172,9 +187,10 @@ export const STAGE_ONE: ArcItem[] = [
     stage: 'wonder',
     kind: 'experience',
     scope: 'individual',
-    title: 'A whole day out, just him',
+    title: 'Spend a whole day with {name}, just the two of you',
+    summary: 'No brothers, no phone, no errand attached to it.',
     detail:
-      'No siblings, no phone, no errand attached to it. With more than one son this needs to be deliberately scheduled or it never happens — and for a boy with brothers, undivided attention for a whole day is the rarest thing you own.',
+      'With more than one son this needs to be deliberately scheduled or it never happens. For a boy with brothers, undivided attention for a whole day is the rarest thing you own.',
   },
   {
     id: 'w-exp-serve',
@@ -183,9 +199,10 @@ export const STAGE_ONE: ArcItem[] = [
     stage: 'wonder',
     kind: 'experience',
     scope: 'shared',
-    title: 'Do something for someone who cannot repay it',
+    title: "Do something together for someone who can't repay it",
+    summary: 'A meal delivered, a garden cleared, a visit made.',
     detail:
-      'Alongside you, not instead of you: a meal delivered, a garden cleared, a visit made. At this age he learns generosity by watching his father do it and being handed a job.',
+      'Alongside you, not instead of you. At this age he learns generosity by watching his father do it and being handed a job.',
   },
 
   // ---- The rite ----
@@ -196,9 +213,10 @@ export const STAGE_ONE: ArcItem[] = [
     stage: 'wonder',
     kind: 'rite',
     scope: 'individual',
-    title: 'The first trip away, and one named privilege',
+    title: 'Take {name} away for two nights, and give him one named privilege',
+    summary: 'A pocketknife, a later bedtime, his own Bible with his name in it.',
     detail:
-      'Two nights away, just the two of you, and something he is given that says he has grown: a pocketknife, a later bedtime, his own Bible with his name written in the front. Name it out loud as a marker rather than a present — "you are ten now, so you get this" — and mark the stone with the date.',
+      'Just the two of you. Name the privilege out loud as a marker rather than a present — "you are ten now, so you get this" — and mark a stone with the date.',
     scripture: 'Joshua 4:6–7',
   },
 ]
