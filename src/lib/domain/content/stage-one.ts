@@ -3,11 +3,19 @@ import type { ArcItem } from '../types'
 /**
  * Ages 8–10. Nothing heavy. The job of this stage is trust and wonder —
  * it is the deposit that stage two spends.
+ *
+ * Grouped below by kind for readability, but the order a father is ASKED is
+ * the `order` field, which ramps deliberately: things you do together first,
+ * conversations only once a few months of goodwill are banked, and the rite
+ * last. Without that, the first thing a new father ever sees is "where babies
+ * come from", which is how you lose him in week one.
  */
 export const STAGE_ONE: ArcItem[] = [
   // ---- Conversations ----
   {
     id: 'w-conv-babies',
+    order: 15,
+    weight: 'weighty',
     stage: 'wonder',
     kind: 'conversation',
     scope: 'individual',
@@ -19,6 +27,8 @@ export const STAGE_ONE: ArcItem[] = [
   },
   {
     id: 'w-conv-death',
+    order: 14,
+    weight: 'weighty',
     stage: 'wonder',
     kind: 'conversation',
     scope: 'individual',
@@ -29,6 +39,8 @@ export const STAGE_ONE: ArcItem[] = [
   },
   {
     id: 'w-conv-why-church',
+    order: 11,
+    weight: 'moderate',
     stage: 'wonder',
     kind: 'conversation',
     scope: 'shared',
@@ -38,6 +50,8 @@ export const STAGE_ONE: ArcItem[] = [
   },
   {
     id: 'w-conv-fear',
+    order: 13,
+    weight: 'moderate',
     stage: 'wonder',
     kind: 'conversation',
     scope: 'individual',
@@ -48,6 +62,8 @@ export const STAGE_ONE: ArcItem[] = [
   },
   {
     id: 'w-conv-made-on-purpose',
+    order: 12,
+    weight: 'moderate',
     stage: 'wonder',
     kind: 'conversation',
     scope: 'individual',
@@ -60,6 +76,8 @@ export const STAGE_ONE: ArcItem[] = [
   // ---- Competencies ----
   {
     id: 'w-comp-swim',
+    order: 7,
+    weight: 'gentle',
     stage: 'wonder',
     kind: 'competency',
     scope: 'individual',
@@ -69,6 +87,8 @@ export const STAGE_ONE: ArcItem[] = [
   },
   {
     id: 'w-comp-ride',
+    order: 5,
+    weight: 'gentle',
     stage: 'wonder',
     kind: 'competency',
     scope: 'individual',
@@ -78,6 +98,8 @@ export const STAGE_ONE: ArcItem[] = [
   },
   {
     id: 'w-comp-tool',
+    order: 8,
+    weight: 'moderate',
     stage: 'wonder',
     kind: 'competency',
     scope: 'individual',
@@ -87,6 +109,8 @@ export const STAGE_ONE: ArcItem[] = [
   },
   {
     id: 'w-comp-cook',
+    order: 6,
+    weight: 'gentle',
     stage: 'wonder',
     kind: 'competency',
     scope: 'individual',
@@ -96,6 +120,8 @@ export const STAGE_ONE: ArcItem[] = [
   },
   {
     id: 'w-comp-adults',
+    order: 3,
+    weight: 'gentle',
     stage: 'wonder',
     kind: 'competency',
     scope: 'individual',
@@ -105,6 +131,8 @@ export const STAGE_ONE: ArcItem[] = [
   },
   {
     id: 'w-comp-money',
+    order: 9,
+    weight: 'moderate',
     stage: 'wonder',
     kind: 'competency',
     scope: 'individual',
@@ -116,6 +144,8 @@ export const STAGE_ONE: ArcItem[] = [
   // ---- Experiences ----
   {
     id: 'w-exp-tent',
+    order: 4,
+    weight: 'gentle',
     stage: 'wonder',
     kind: 'experience',
     scope: 'shared',
@@ -126,6 +156,8 @@ export const STAGE_ONE: ArcItem[] = [
   },
   {
     id: 'w-exp-build',
+    order: 2,
+    weight: 'gentle',
     stage: 'wonder',
     kind: 'experience',
     scope: 'shared',
@@ -135,6 +167,8 @@ export const STAGE_ONE: ArcItem[] = [
   },
   {
     id: 'w-exp-alone-day',
+    order: 1,
+    weight: 'gentle',
     stage: 'wonder',
     kind: 'experience',
     scope: 'individual',
@@ -144,6 +178,8 @@ export const STAGE_ONE: ArcItem[] = [
   },
   {
     id: 'w-exp-serve',
+    order: 10,
+    weight: 'moderate',
     stage: 'wonder',
     kind: 'experience',
     scope: 'shared',
@@ -155,6 +191,8 @@ export const STAGE_ONE: ArcItem[] = [
   // ---- The rite ----
   {
     id: 'w-rite-first-trip',
+    order: 16,
+    weight: 'weighty',
     stage: 'wonder',
     kind: 'rite',
     scope: 'individual',

@@ -4,10 +4,23 @@ import type { Child } from '@/lib/domain/types'
 
 export interface FamilyContext {
   userEmail: string
-  family: { id: string; name: string } | null
+  family: { id: string; name: string; reminderDay: number; groundworkSkipped: boolean } | null
   children: Child[]
-  /** Keys in completionKey() form: `itemId` for shared, `childId:itemId` otherwise. */
+  /** Keys in completionKey() form: `itemId` for shared and groundwork, `childId:itemId` otherwise. */
   completed: Set<string>
+  /** Completion key → ISO date it becomes available again. */
+  deferred: Map<string, string>
+}
+
+interface ProgressRow {
+  child_id: string | null
+  item_id: string
+  status: string
+  deferred_until: string | null
+}
+
+function keyFor(row: Pick<ProgressRow, 'child_id' | 'item_id'>): string {
+  return row.child_id ? `${row.child_id}:${row.item_id}` : row.item_id
 }
 
 /**
@@ -27,32 +40,53 @@ export async function getFamilyContext(): Promise<FamilyContext | null> {
 
   const { data: membership } = await supabase
     .from('family_members')
-    .select('family_id, families(id, name)')
+    .select('family_id, families(id, name, reminder_day, groundwork_skipped_at)')
     .eq('user_id', user.id)
     .maybeSingle()
 
-  const family = (membership?.families as unknown as { id: string; name: string } | null) ?? null
-  if (!family) {
-    return { userEmail: user.email ?? '', family: null, children: [], completed: new Set() }
+  const row = membership?.families as unknown as
+    | { id: string; name: string; reminder_day: number; groundwork_skipped_at: string | null }
+    | null
+
+  if (!row) {
+    return {
+      userEmail: user.email ?? '',
+      family: null,
+      children: [],
+      completed: new Set(),
+      deferred: new Map(),
+    }
   }
 
   const [{ data: children }, { data: progress }] = await Promise.all([
     supabase
       .from('children')
       .select('id, name, birthdate')
-      .eq('family_id', family.id)
+      .eq('family_id', row.id)
       .order('birthdate', { ascending: true }),
-    supabase.from('arc_progress').select('child_id, item_id').eq('family_id', family.id),
+    supabase
+      .from('arc_progress')
+      .select('child_id, item_id, status, deferred_until')
+      .eq('family_id', row.id),
   ])
 
-  const completed = new Set(
-    (progress ?? []).map((row) => (row.child_id ? `${row.child_id}:${row.item_id}` : row.item_id))
-  )
+  const completed = new Set<string>()
+  const deferred = new Map<string, string>()
+  for (const p of (progress ?? []) as ProgressRow[]) {
+    if (p.status === 'deferred' && p.deferred_until) deferred.set(keyFor(p), p.deferred_until)
+    else completed.add(keyFor(p))
+  }
 
   return {
     userEmail: user.email ?? '',
-    family,
+    family: {
+      id: row.id,
+      name: row.name,
+      reminderDay: row.reminder_day ?? 0,
+      groundworkSkipped: row.groundwork_skipped_at !== null,
+    },
     children: (children ?? []) as Child[],
     completed,
+    deferred,
   }
 }

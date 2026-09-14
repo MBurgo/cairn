@@ -22,12 +22,36 @@ export default async function SetupPage() {
     <>
       <Masthead email={ctx.userEmail} />
       <main className="mx-auto w-full max-w-2xl flex-1 px-5 py-10">
-        <div className="flex flex-col gap-3">
-          <p className="eyebrow">First run</p>
-          <h1 className="font-display text-3xl">Let&apos;s start with one son.</h1>
-          <p className="max-w-prose text-ink-soft">
-            You can add his brothers in a moment. Cairn works out his age, which stage he&apos;s in,
-            and how many years are left — so his date of birth is the only thing it really needs.
+        <div className="flex flex-col gap-4">
+          <p className="eyebrow">Welcome</p>
+          <h1 className="font-display text-3xl leading-tight">
+            Raising a son on purpose, one week at a time.
+          </h1>
+          <div className="flex max-w-prose flex-col gap-3 text-ink-soft">
+            <p>
+              Cairn asks you for one thing a week — not one a day, and never one per son — from
+              the time a boy is eight until he leaves home at eighteen. Conversations to have,
+              things to teach him, trips to take, and the handful of occasions that deserve to be
+              marked properly.
+            </p>
+            <p>
+              At the end there is a book for each of your sons: what you did, what he said, what
+              you prayed for him, and how it turned out.
+            </p>
+            <p className="text-ink">
+              <strong className="font-semibold">Nothing starts today.</strong> The first few weeks
+              are for you rather than him — the rhythm, what you&apos;re aiming at, and a bit of
+              honest thinking about your own father. We&apos;ll get to your son shortly.
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-10 flex flex-col gap-3">
+          <p className="eyebrow">First, who he is</p>
+          <p className="max-w-prose text-sm text-ink-soft">
+            Start with one son — you can add his brothers straight afterwards. His date of birth
+            is the only thing Cairn really needs: it works out his age, which stage he&apos;s in,
+            and how much time is left.
           </p>
         </div>
 
@@ -35,11 +59,11 @@ export default async function SetupPage() {
           action={createFamily}
           submitLabel="Create and continue"
           pendingLabel="Creating…"
-          className="mt-8 flex flex-col gap-5 rounded-sm border border-rule bg-raised p-6"
+          className="mt-5 flex flex-col gap-5 rounded-sm border border-rule bg-raised p-6"
         >
           <Field label="Family name" name="familyName" placeholder="e.g. the Burgess family" />
           <div className="h-px bg-rule-soft" />
-          <Field label="His name" name="sonName" placeholder="e.g. Sam" />
+          <Field label="His name" name="sonName" placeholder="e.g. Eli" />
           <Field label="Date of birth" name="birthdate" type="date" max={today} />
         </ActionForm>
       </main>

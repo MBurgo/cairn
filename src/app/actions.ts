@@ -3,7 +3,8 @@
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import { itemById } from '@/lib/domain/content'
+import { groundworkById, itemById } from '@/lib/domain/content'
+import { deferralDate } from '@/lib/domain/nudge'
 
 export interface ActionResult {
   error?: string
@@ -17,6 +18,49 @@ function isoDateOrNull(value: unknown): string | null {
   if (date.getFullYear() !== y || date.getMonth() !== m - 1 || date.getDate() !== d) return null
   if (date > new Date()) return null
   return value
+}
+
+async function currentFamilyId(): Promise<string | null> {
+  const supabase = await createClient()
+  const { data } = await supabase.from('family_members').select('family_id').maybeSingle()
+  return data?.family_id ?? null
+}
+
+/**
+ * Writes one progress row, replacing whatever was there. The unique indexes on
+ * arc_progress are partial, which makes upsert awkward, so this clears first —
+ * and clearing is what we want anyway when an item moves from deferred to done.
+ */
+async function writeProgress(
+  familyId: string,
+  childId: string | null,
+  itemId: string,
+  status: 'done' | 'deferred',
+  deferredUntil: string | null
+): Promise<string | null> {
+  const supabase = await createClient()
+  let del = supabase
+    .from('arc_progress')
+    .delete()
+    .eq('family_id', familyId)
+    .eq('item_id', itemId)
+  del = childId ? del.eq('child_id', childId) : del.is('child_id', null)
+  const { error: delError } = await del
+  if (delError) return delError.message
+
+  const { error } = await supabase.from('arc_progress').insert({
+    family_id: familyId,
+    child_id: childId,
+    item_id: itemId,
+    status,
+    deferred_until: deferredUntil,
+  })
+  return error?.message ?? null
+}
+
+function refresh() {
+  revalidatePath('/')
+  revalidatePath('/arc')
 }
 
 export async function createFamily(
@@ -54,19 +98,14 @@ export async function addSon(
   if (!name) return { error: "Add your son's name." }
   if (!birthdate) return { error: 'Enter a real date of birth in the past.' }
 
-  const supabase = await createClient()
-  const { data: membership } = await supabase
-    .from('family_members')
-    .select('family_id')
-    .maybeSingle()
-  if (!membership) return { error: 'No family found.' }
+  const familyId = await currentFamilyId()
+  if (!familyId) return { error: 'No family found.' }
 
-  const { error } = await supabase
-    .from('children')
-    .insert({ family_id: membership.family_id, name, birthdate })
+  const supabase = await createClient()
+  const { error } = await supabase.from('children').insert({ family_id: familyId, name, birthdate })
   if (error) return { error: error.message }
 
-  revalidatePath('/')
+  refresh()
   return {}
 }
 
@@ -81,39 +120,126 @@ export async function setItemDone(
   const item = itemById(itemId)
   if (!item) return { error: 'Unknown item.' }
 
-  const supabase = await createClient()
-  const { data: membership } = await supabase
-    .from('family_members')
-    .select('family_id')
-    .maybeSingle()
-  if (!membership) return { error: 'No family found.' }
+  const familyId = await currentFamilyId()
+  if (!familyId) return { error: 'No family found.' }
 
   // A shared item is recorded once for the family; an individual one per boy.
   const scopedChildId = item.scope === 'shared' ? null : childId
   if (item.scope !== 'shared' && !scopedChildId) return { error: 'Which son?' }
 
   if (done) {
-    const { error } = await supabase.from('arc_progress').insert({
-      family_id: membership.family_id,
-      child_id: scopedChildId,
-      item_id: itemId,
-    })
-    // 23505 is a duplicate — already done, which is not a failure worth showing.
-    if (error && error.code !== '23505') return { error: error.message }
+    const error = await writeProgress(familyId, scopedChildId, itemId, 'done', null)
+    if (error) return { error }
   } else {
+    const supabase = await createClient()
     let query = supabase
       .from('arc_progress')
       .delete()
-      .eq('family_id', membership.family_id)
+      .eq('family_id', familyId)
       .eq('item_id', itemId)
     query = scopedChildId ? query.eq('child_id', scopedChildId) : query.is('child_id', null)
     const { error } = await query
     if (error) return { error: error.message }
   }
 
-  revalidatePath('/')
-  revalidatePath('/arc')
+  refresh()
   return {}
+}
+
+/**
+ * "Not yet." Pushes an item three months out instead of forcing a father to
+ * either lie about it or ignore the app. A false completion would end up
+ * printed in his son's book.
+ */
+export async function deferItem(
+  _prev: ActionResult | null,
+  formData: FormData
+): Promise<ActionResult> {
+  const itemId = String(formData.get('itemId') ?? '')
+  const childId = String(formData.get('childId') ?? '')
+
+  const arcItem = itemById(itemId)
+  const groundwork = groundworkById(itemId)
+  if (!arcItem && !groundwork) return { error: 'Unknown item.' }
+
+  const familyId = await currentFamilyId()
+  if (!familyId) return { error: 'No family found.' }
+
+  const scopedChildId = !arcItem || arcItem.scope === 'shared' ? null : childId
+  const error = await writeProgress(
+    familyId,
+    scopedChildId,
+    itemId,
+    'deferred',
+    deferralDate(new Date())
+  )
+  if (error) return { error }
+
+  refresh()
+  return {}
+}
+
+/**
+ * Completes one of the four father-only weeks. Writing items keep what he
+ * wrote as a capture — it is the first thing that goes into his son's book,
+ * dated and written before any of it had happened.
+ */
+export async function completeGroundwork(
+  _prev: ActionResult | null,
+  formData: FormData
+): Promise<ActionResult> {
+  const itemId = String(formData.get('itemId') ?? '')
+  const item = groundworkById(itemId)
+  if (!item) return { error: 'Unknown item.' }
+
+  const familyId = await currentFamilyId()
+  if (!familyId) return { error: 'No family found.' }
+
+  const supabase = await createClient()
+
+  if (item.input === 'writing') {
+    const body = String(formData.get('body') ?? '').trim()
+    if (body.length < 20) {
+      return { error: 'Write a little more — a sentence or two at least. Nobody else reads this.' }
+    }
+    const { error } = await supabase.from('captures').insert({
+      family_id: familyId,
+      child_id: null,
+      body,
+      source_item_id: itemId,
+    })
+    if (error) return { error: error.message }
+  }
+
+  if (item.input === 'reminder-day') {
+    const day = Number(formData.get('reminderDay'))
+    if (!Number.isInteger(day) || day < 0 || day > 6) return { error: 'Pick a day.' }
+    const { error } = await supabase
+      .from('families')
+      .update({ reminder_day: day })
+      .eq('id', familyId)
+    if (error) return { error: error.message }
+  }
+
+  const error = await writeProgress(familyId, null, itemId, 'done', null)
+  if (error) return { error }
+
+  refresh()
+  return {}
+}
+
+/** For a father who has done this before and does not need the ramp. */
+export async function skipGroundwork(): Promise<void> {
+  const familyId = await currentFamilyId()
+  if (familyId) {
+    const supabase = await createClient()
+    await supabase
+      .from('families')
+      .update({ groundwork_skipped_at: new Date().toISOString() })
+      .eq('id', familyId)
+  }
+  refresh()
+  redirect('/')
 }
 
 export async function signOut(): Promise<void> {
