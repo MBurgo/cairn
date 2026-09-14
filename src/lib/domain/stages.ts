@@ -1,10 +1,15 @@
 import type { Stage, StageKey } from './types'
 
+/**
+ * Named rather than described. "Wonder & Belonging" is a label from a spec
+ * document; "he's in The Forge" is a sentence a father says out loud to his
+ * wife, or to another man at church. The ages carry the description.
+ */
 export const STAGES: Stage[] = [
   {
     key: 'wonder',
     number: 1,
-    name: 'Wonder & Belonging',
+    name: 'The Watching',
     theme:
       'He learns that the world is good, that God made it, and that his father is both safe and fun. This stage buys the trust the next one spends.',
     ageFrom: 8,
@@ -14,7 +19,7 @@ export const STAGES: Stage[] = [
   {
     key: 'body',
     number: 2,
-    name: 'Body & Truth',
+    name: 'The Forge',
     theme:
       'The hinge. Puberty, a phone, pornography and the first real doubts all land inside thirty-six months.',
     ageFrom: 11,
@@ -24,7 +29,7 @@ export const STAGES: Stage[] = [
   {
     key: 'strength',
     number: 3,
-    name: 'Strength & Responsibility',
+    name: 'The Proving',
     theme:
       'He is becoming physically powerful and does not yet know what power is for. This stage is about aiming it.',
     ageFrom: 14,
@@ -34,7 +39,7 @@ export const STAGES: Stage[] = [
   {
     key: 'handover',
     number: 4,
-    name: 'The Handover',
+    name: 'The Send',
     theme:
       'The deliberate end of your authority and the start of a friendship between peers, done on purpose and out loud.',
     ageFrom: 17,

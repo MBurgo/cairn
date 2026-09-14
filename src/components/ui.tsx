@@ -26,117 +26,10 @@ export function Field({
         placeholder={placeholder}
         autoComplete={autoComplete}
         max={max}
-        className="min-h-12 w-full rounded-lg bg-raised px-4 py-3 text-ink
+        className="min-h-12 w-full rounded-md bg-bone px-4 py-3 text-ink
                    placeholder:text-ink-faint focus:outline-2 focus:outline-offset-2
-                   focus:outline-accent"
+                   focus:outline-rust"
       />
-    </label>
-  )
-}
-
-/**
- * A writing surface. Paper, not a form field — what a father writes here is
- * going into a printed book, and it should look like it from the first word.
- */
-export function Sheet({
-  prompt,
-  name,
-  placeholder,
-  rows = 8,
-  keptFor,
-}: {
-  prompt: string
-  name: string
-  placeholder?: string
-  rows?: number
-  keptFor?: string
-}) {
-  const today = new Date().toLocaleDateString('en-AU', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-  })
-  return (
-    <div className="sheet flex flex-col gap-3 px-5 pt-5 pb-4">
-      <label htmlFor={name} className="stamp">
-        {prompt}
-      </label>
-      <textarea
-        id={name}
-        name={name}
-        rows={rows}
-        placeholder={placeholder}
-        className="written w-full resize-none bg-transparent placeholder:text-paper-soft/70
-                   focus:outline-none"
-      />
-      <div className="h-px bg-paper-edge" />
-      <p className="stamp flex justify-between gap-3">
-        <span>{keptFor ? `Kept for ${keptFor}'s book` : 'Kept'}</span>
-        <span>{today}</span>
-      </p>
-    </div>
-  )
-}
-
-/** The only filled shape on a screen. */
-export function Submit({
-  children,
-  disabled = false,
-}: {
-  children: React.ReactNode
-  disabled?: boolean
-}) {
-  return (
-    <button
-      type="submit"
-      disabled={disabled}
-      className="inline-flex min-h-12 w-full items-center justify-center rounded-full
-                 bg-accent px-7 py-3.5 font-semibold text-accent-ink
-                 hover:opacity-90 disabled:opacity-50 focus-visible:outline-2
-                 focus-visible:outline-offset-2 focus-visible:outline-accent"
-    >
-      {children}
-    </button>
-  )
-}
-
-export function Notice({
-  children,
-  tone = 'error',
-}: {
-  children: React.ReactNode
-  tone?: 'error' | 'info' | 'ok'
-}) {
-  const accent = tone === 'error' ? 'text-brass' : 'text-accent'
-  return (
-    <p
-      role={tone === 'error' ? 'alert' : 'status'}
-      className={`text-sm ${tone === 'info' ? 'text-ink-soft' : accent}`}
-    >
-      {children}
-    </p>
-  )
-}
-
-const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
-
-export function DayPicker({ name, defaultValue = 0 }: { name: string; defaultValue?: number }) {
-  return (
-    <label className="flex flex-col gap-2">
-      <span className="text-sm font-medium text-ink-soft">Ask me on</span>
-      <select
-        id={name}
-        name={name}
-        defaultValue={defaultValue}
-        className="min-h-12 w-full rounded-lg bg-raised px-4 py-3 text-ink
-                   focus:outline-2 focus:outline-offset-2 focus:outline-accent"
-      >
-        {DAYS.map((day, i) => (
-          <option key={day} value={i}>
-            {day}
-          </option>
-        ))}
-      </select>
     </label>
   )
 }
@@ -159,8 +52,8 @@ export function Select({
         id={name}
         name={name}
         defaultValue={defaultValue}
-        className="min-h-12 w-full rounded-lg bg-raised px-4 py-3 text-ink
-                   focus:outline-2 focus:outline-offset-2 focus:outline-accent"
+        className="min-h-12 w-full rounded-md bg-bone px-4 py-3 text-ink
+                   focus:outline-2 focus:outline-offset-2 focus:outline-rust"
       >
         {options.map((o) => (
           <option key={o.value} value={o.value}>
@@ -172,12 +65,119 @@ export function Select({
   )
 }
 
+const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+
+export function DayPicker({ name, defaultValue = 0 }: { name: string; defaultValue?: number }) {
+  return (
+    <Select
+      label="Ask me on"
+      name={name}
+      defaultValue={defaultValue}
+      options={DAYS.map((d, i) => ({ value: i, label: d }))}
+    />
+  )
+}
+
+/**
+ * A writing surface. Paper, not a form field — what a father writes here is
+ * going into a printed book, and it should look like it from the first word.
+ */
+export function Sheet({
+  prompt,
+  name,
+  placeholder,
+  rows = 7,
+  keptFor,
+  compact = false,
+}: {
+  prompt: string
+  name: string
+  placeholder?: string
+  rows?: number
+  keptFor?: string
+  compact?: boolean
+}) {
+  const today = new Date().toLocaleDateString('en-AU', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  })
+  return (
+    <div className="sheet flex flex-col gap-3 px-5 pt-5 pb-4">
+      <label htmlFor={name} className="stamp">
+        {prompt}
+      </label>
+      <textarea
+        id={name}
+        name={name}
+        rows={rows}
+        placeholder={placeholder}
+        className="written w-full resize-none bg-transparent placeholder:text-paper-soft/60
+                   focus:outline-none"
+      />
+      {compact ? null : (
+        <>
+          <div className="h-px bg-paper-edge" />
+          <p className="stamp flex justify-between gap-3">
+            <span>{keptFor ? `Kept for ${keptFor}'s book` : 'Kept'}</span>
+            <span>{today}</span>
+          </p>
+        </>
+      )}
+    </div>
+  )
+}
+
+/** The only filled shape in its region. Inverts when it sits on the card. */
+export function Submit({
+  children,
+  disabled = false,
+  onCard = false,
+}: {
+  children: React.ReactNode
+  disabled?: boolean
+  onCard?: boolean
+}) {
+  return (
+    <button
+      type="submit"
+      disabled={disabled}
+      className={`inline-flex min-h-12 w-full items-center justify-center rounded-full px-7 py-3.5
+                  font-semibold disabled:opacity-50 focus-visible:outline-2
+                  focus-visible:outline-offset-2 ${
+                    onCard
+                      ? 'bg-card-ink text-card focus-visible:outline-card-ink'
+                      : 'bg-card text-card-ink focus-visible:outline-rust'
+                  } hover:opacity-90`}
+    >
+      {children}
+    </button>
+  )
+}
+
+export function Notice({
+  children,
+  tone = 'error',
+}: {
+  children: React.ReactNode
+  tone?: 'error' | 'info' | 'ok'
+}) {
+  return (
+    <p
+      role={tone === 'error' ? 'alert' : 'status'}
+      className={`text-sm ${tone === 'info' ? 'text-ink-soft' : 'text-rust'}`}
+    >
+      {children}
+    </p>
+  )
+}
+
 /** Quiet warning before something heavy, so a father isn't ambushed. */
 export function WeightNote() {
   return (
-    <p className="text-sm text-brass">
-      This is one of the bigger ones. If this isn&apos;t the week for it, put it off — it&apos;ll
-      come back.
+    <p className="text-sm text-card-accent">
+      One of the bigger ones. If this isn&apos;t the week for it, put it off — it&apos;ll come
+      back.
     </p>
   )
 }
@@ -210,7 +210,7 @@ export function QuietRow({
     </>
   )
   const className =
-    'flex min-h-14 items-baseline justify-between gap-4 py-2 text-ink transition-colors hover:text-accent'
+    'flex min-h-14 items-baseline justify-between gap-4 py-2 text-ink transition-colors hover:text-rust'
   if (!href) return <div className={className}>{inner}</div>
   return (
     <a href={href} className={className}>

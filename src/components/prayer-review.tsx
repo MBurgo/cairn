@@ -46,7 +46,7 @@ export function PrayerReviewCard({ prayer, childName }: { prayer: Prayer; childN
                 name="outcome"
                 value={option.value}
                 defaultChecked={i === 0}
-                className="h-4 w-4 accent-accent"
+                className="h-4 w-4 accent-rust"
               />
               {option.label}
             </label>

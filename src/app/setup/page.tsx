@@ -24,7 +24,7 @@ export default async function SetupPage() {
       <main className="mx-auto w-full max-w-2xl flex-1 px-5 pt-12 pb-10">
         <div className="flex flex-col gap-4">
           <p className="eyebrow">Welcome</p>
-          <h1 className="instruction">
+          <h1 className="heading">
             Raising a son on purpose, one week at a time.
           </h1>
           <div className="flex max-w-prose flex-col gap-3 text-ink-soft">

@@ -46,7 +46,7 @@ export default async function JournalPage() {
     <>
       <Masthead trailing={`${journal.captures.length + journal.prayers.length} kept`} />
       <main className="mx-auto w-full max-w-2xl flex-1 px-5 pt-12 pb-10">
-        <h1 className="instruction">Everything going into their books</h1>
+        <h1 className="heading">Everything going into their books</h1>
         <p className="mt-4 max-w-prose text-ink-soft">
           Nothing in here is ever asked of you. It&apos;s for whenever you have something worth
           keeping.

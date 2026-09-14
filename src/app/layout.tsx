@@ -1,11 +1,18 @@
 import type { Metadata, Viewport } from 'next'
-import { Newsreader, Archivo, IBM_Plex_Mono } from 'next/font/google'
+import { Newsreader, IBM_Plex_Sans, IBM_Plex_Mono } from 'next/font/google'
 import './globals.css'
 import { InstallPrompt, ServiceWorker } from '@/components/pwa'
 import { Tabs } from '@/components/tabs'
 
 const newsreader = Newsreader({ variable: '--font-newsreader', subsets: ['latin'], display: 'swap' })
-const archivo = Archivo({ variable: '--font-archivo', subsets: ['latin'], display: 'swap' })
+// Plex Sans rather than Archivo: warmer, humanist, and it pairs with the
+// Plex Mono already carrying dates and labels.
+const plexSans = IBM_Plex_Sans({
+  variable: '--font-plex-sans',
+  subsets: ['latin'],
+  weight: ['400', '500', '600'],
+  display: 'swap',
+})
 const plexMono = IBM_Plex_Mono({
   variable: '--font-plex-mono',
   subsets: ['latin'],
@@ -24,8 +31,8 @@ export const viewport: Viewport = {
   // Keeps content clear of the notch and home indicator once installed.
   viewportFit: 'cover',
   themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#e9ebe6' },
-    { media: '(prefers-color-scheme: dark)', color: '#121917' },
+    { media: '(prefers-color-scheme: light)', color: '#e8e4dc' },
+    { media: '(prefers-color-scheme: dark)', color: '#1a1714' },
   ],
 }
 
@@ -33,7 +40,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html
       lang="en-AU"
-      className={`${newsreader.variable} ${archivo.variable} ${plexMono.variable} h-full antialiased`}
+      className={`${newsreader.variable} ${plexSans.variable} ${plexMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
         <ServiceWorker />

@@ -23,7 +23,7 @@ export const GROUNDWORK: GroundworkItem[] = [
     title: "Write down what you're aiming at",
     summary: 'What kind of man, not a list of achievements. It goes into his book exactly as you write it.',
     detail:
-      'You have seen the number of summers left. Sit with it for a minute before you write.\n\nNot a list of achievements — what kind of man. Be specific and be honest; nobody else reads this. It is the only fixed point the next ten years have, and everything Cairn asks of you is measured against it.\n\nThis is kept. It goes in his book exactly as you write it today, dated, written before any of it had happened.',
+      'You have seen how many birthdays are left. Sit with that for a minute before you write.\n\nNot a list of achievements — what kind of man. Be specific and be honest; nobody else reads this. It is the only fixed point the next ten years have, and everything Cairn asks of you is measured against it.\n\nThis is kept. It goes in his book exactly as you write it today, dated, written before any of it had happened.',
     input: 'writing',
     prompt: 'What do you want to be true about him at eighteen?',
     captureLabel: 'What I was aiming at',

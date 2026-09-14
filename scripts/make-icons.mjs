@@ -8,8 +8,8 @@
 import { mkdir, writeFile } from 'node:fs/promises'
 import sharp from 'sharp'
 
-const GROUND = '#2F5D50'
-const STONE = '#E9EBE6'
+const GROUND = '#221F1A'
+const STONE = '#E8E4DC'
 
 /** @param {number} scale 1 = full bleed; smaller keeps clear of a maskable crop. */
 function svg(scale) {

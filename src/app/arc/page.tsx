@@ -58,13 +58,13 @@ export default async function ArcPage() {
                 <p className="eyebrow">
                   {child.name} · {clock.age} years old · stage {stage.number} of 4
                 </p>
-                <h1 className="instruction">{stage.name}</h1>
+                <h1 className="heading">{stage.name}</h1>
                 <p className="max-w-prose text-ink-soft">{stage.theme}</p>
-                <p className="font-mono text-xs tracking-wider text-accent uppercase">
+                <p className="font-mono text-xs tracking-wider text-rust uppercase">
                   Reading together: {stage.spineText}
                 </p>
                 <p className="font-mono text-sm text-ink-faint tabular-nums">
-                  {doneCount} of {items.length} done
+                  {doneCount} of {items.length} so far
                 </p>
               </div>
 
@@ -89,7 +89,7 @@ export default async function ArcPage() {
                               {titleFor(item, child.name)}
                             </h3>
                             {item.scope === 'shared' ? (
-                              <span className="rounded-sm bg-accent-soft px-2 py-0.5 font-mono text-[0.6rem] tracking-wider text-accent uppercase">
+                              <span className="rounded-sm bg-bone px-2 py-0.5 font-mono text-[0.6rem] tracking-wider text-rust uppercase">
                                 Both boys
                               </span>
                             ) : null}
@@ -98,12 +98,12 @@ export default async function ArcPage() {
                             <>
                               <p className="text-sm text-ink-soft">{item.summary}</p>
                               {item.opener ? (
-                                <p className="border-l-2 border-l-accent bg-surface px-4 py-3 font-display italic">
+                                <p className="border-l-2 border-l-rust bg-bone px-4 py-3 font-display italic">
                                   {item.opener}
                                 </p>
                               ) : null}
                               {item.scripture ? (
-                                <p className="font-mono text-xs tracking-wider text-accent uppercase">
+                                <p className="font-mono text-xs tracking-wider text-rust uppercase">
                                   {item.scripture}
                                 </p>
                               ) : null}

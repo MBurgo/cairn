@@ -31,7 +31,7 @@ export default function LoginPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="instruction">Sign in</h1>
+      <h1 className="heading">Sign in</h1>
       {error ? <Notice>{error}</Notice> : null}
       <form onSubmit={onSubmit} className="flex flex-col gap-4">
         <Field label="Email" name="email" type="email" autoComplete="email" />
@@ -40,7 +40,7 @@ export default function LoginPage() {
       </form>
       <p className="text-sm text-ink-soft">
         No account yet?{' '}
-        <Link href="/signup" className="font-medium text-accent underline">
+        <Link href="/signup" className="font-medium text-rust underline">
           Create one
         </Link>
       </p>

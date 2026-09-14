@@ -46,12 +46,12 @@ export default function SignupPage() {
   if (sentTo) {
     return (
       <div className="flex flex-col gap-5">
-        <h1 className="instruction">Check your email</h1>
+        <h1 className="heading">Check your email</h1>
         <p className="text-sm text-ink-soft">
           We&apos;ve sent a confirmation link to <strong className="text-ink">{sentTo}</strong>.
           Click it and you&apos;ll be signed in.
         </p>
-        <Link href="/login" className="text-sm font-medium text-accent underline">
+        <Link href="/login" className="text-sm font-medium text-rust underline">
           Back to sign in
         </Link>
       </div>
@@ -60,7 +60,7 @@ export default function SignupPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="instruction">Create an account</h1>
+      <h1 className="heading">Create an account</h1>
       {error ? <Notice>{error}</Notice> : null}
       <form onSubmit={onSubmit} className="flex flex-col gap-4">
         <Field label="Email" name="email" type="email" autoComplete="email" />
@@ -75,7 +75,7 @@ export default function SignupPage() {
       </form>
       <p className="text-sm text-ink-soft">
         Already have one?{' '}
-        <Link href="/login" className="font-medium text-accent underline">
+        <Link href="/login" className="font-medium text-rust underline">
           Sign in
         </Link>
       </p>
