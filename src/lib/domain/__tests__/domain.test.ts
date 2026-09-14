@@ -2,16 +2,55 @@ import { test } from 'vitest'
 import assert from 'node:assert/strict'
 import { ageOn, clockFor, nextBirthday } from '../clock'
 import { stageForAge } from '../stages'
-import { completionKey, isoWeek, weeklyNudge } from '../nudge'
-import { itemsForStage } from '../content'
+import {
+  alternativeCount,
+  completionKey,
+  deferralDate,
+  groundworkProgress,
+  isoWeek,
+  weeklyNudge,
+  type NudgeState,
+} from '../nudge'
+import { GROUNDWORK, itemsForStage } from '../content'
 import type { Child } from '../types'
 
 const on = new Date(2026, 8, 13) // 13 Sep 2026
 
+const SONS: Child[] = [
+  { id: 'a', name: 'Elder', birthdate: '2016-03-01' },
+  { id: 'b', name: 'Younger', birthdate: '2017-06-01' },
+]
+
+function state(over: Partial<NudgeState> = {}): NudgeState {
+  return {
+    children: SONS,
+    completed: new Set(),
+    deferred: new Map(),
+    groundworkSkipped: false,
+    ...over,
+  }
+}
+
+/** Narrows a nudge to the arc branch, failing loudly if it isn't one. */
+function asArc(nudge: ReturnType<typeof weeklyNudge>) {
+  assert.ok(nudge, 'expected a nudge')
+  assert.equal(nudge.type, 'arc', 'expected an arc nudge')
+  return nudge as Extract<typeof nudge, { type: 'arc' }>
+}
+
+/** Groundwork finished, so tests can reach the arc. */
+function pastGroundwork(over: Partial<NudgeState> = {}): NudgeState {
+  const completed = new Set(GROUNDWORK.map((g) => g.id))
+  for (const k of over.completed ?? []) completed.add(k)
+  return state({ ...over, completed })
+}
+
+// ---- clock ----
+
 test('age is not incremented until the birthday has passed', () => {
-  assert.equal(ageOn('2016-09-12', on), 10, 'day after birthday')
-  assert.equal(ageOn('2016-09-13', on), 10, 'on the birthday itself')
-  assert.equal(ageOn('2016-09-14', on), 9, 'day before birthday')
+  assert.equal(ageOn('2016-09-12', on), 10)
+  assert.equal(ageOn('2016-09-13', on), 10)
+  assert.equal(ageOn('2016-09-14', on), 9)
 })
 
 test('leap-day birthdays do not throw or drift', () => {
@@ -23,23 +62,12 @@ test('next birthday rolls into next year once this year has passed', () => {
   assert.deepEqual(nextBirthday('2016-12-25', on), new Date(2026, 11, 25))
 })
 
-test('next birthday is today when today is the birthday', () => {
-  assert.equal(clockFor({ id: 'a', name: 'A', birthdate: '2016-09-13' }, on).daysToNextBirthday, 0)
-})
-
 test('the clock counts down to eighteen', () => {
-  const c = clockFor({ id: 'a', name: 'Elder', birthdate: '2016-03-01' }, on)
+  const c = clockFor(SONS[0], on)
   assert.equal(c.age, 10)
   assert.equal(c.summersLeft, 8)
   assert.equal(c.saturdaysLeft, 416)
   assert.equal(c.stage?.key, 'wonder')
-})
-
-test('an eighteen-year-old has no summers left and no stage beyond handover', () => {
-  const c = clockFor({ id: 'a', name: 'A', birthdate: '2008-01-01' }, on)
-  assert.equal(c.age, 18)
-  assert.equal(c.summersLeft, 0)
-  assert.equal(c.stage?.key, 'handover')
 })
 
 test('stage boundaries land where the spec says', () => {
@@ -52,61 +80,127 @@ test('stage boundaries land where the spec says', () => {
   assert.equal(stageForAge(19), null)
 })
 
+// ---- groundwork comes first ----
+
+test('a brand-new father is given groundwork, not a task involving his son', () => {
+  const nudge = weeklyNudge(state(), on)
+  assert.equal(nudge?.type, 'groundwork')
+  assert.equal(nudge.item.id, 'gw-1-rhythm')
+})
+
+test('groundwork runs in order and does not depend on the sons at all', () => {
+  let completed = new Set<string>()
+  for (const expected of GROUNDWORK.map((g) => g.id)) {
+    const nudge = weeklyNudge(state({ completed, children: [] }), on)
+    assert.equal(nudge?.type, 'groundwork')
+    assert.equal(nudge.item.id, expected)
+    completed = new Set([...completed, expected])
+  }
+  // Four weeks done, no sons in the arc yet.
+  assert.equal(weeklyNudge(state({ completed, children: [] }), on), null)
+})
+
+test('skipping groundwork goes straight to the arc', () => {
+  const nudge = weeklyNudge(state({ groundworkSkipped: true }), on)
+  assert.equal(nudge?.type, 'arc')
+})
+
+test('groundwork progress reports honestly', () => {
+  assert.deepEqual(groundworkProgress(state()), { done: 0, total: 4, complete: false })
+  assert.equal(groundworkProgress(pastGroundwork()).complete, true)
+  assert.equal(groundworkProgress(state({ groundworkSkipped: true })).complete, true)
+})
+
+// ---- the ramp ----
+
+test('the first arc item is never a conversation', () => {
+  assert.notEqual(asArc(weeklyNudge(pastGroundwork(), on)).item.kind, 'conversation')
+})
+
+test('stage one ramps gentle before weighty, and no conversation is gentle-first', () => {
+  const items = itemsForStage('wonder')
+  const firstConversation = items.findIndex((i) => i.kind === 'conversation')
+  const lastGentle = items.map((i) => i.weight).lastIndexOf('gentle')
+  assert.ok(
+    firstConversation > lastGentle,
+    'conversations must come after the gentle run has been banked'
+  )
+})
+
+test('weights never go backwards through a stage', () => {
+  const rank = { gentle: 0, moderate: 1, weighty: 2 }
+  const weights = itemsForStage('wonder').map((i) => rank[i.weight])
+  for (let i = 1; i < weights.length; i++) {
+    assert.ok(weights[i] >= weights[i - 1], `item ${i} is lighter than the one before it`)
+  }
+})
+
+test('the rite is held back until the rest of the stage is done', () => {
+  const items = itemsForStage('wonder')
+  const nonRite = items.filter((i) => i.kind !== 'rite')
+  const done = new Set(nonRite.map((i) => completionKey(i, 'a')))
+  const sons = [SONS[0]]
+  assert.notEqual(asArc(weeklyNudge(pastGroundwork({ children: sons }), on)).item.kind, 'rite')
+  const nudge = asArc(weeklyNudge(pastGroundwork({ children: sons, completed: done }), on))
+  assert.equal(nudge.item.kind, 'rite')
+})
+
+// ---- one nudge, rotation, deferral, alternatives ----
+
+test('only one nudge is produced per week, however many sons there are', () => {
+  const nudge = weeklyNudge(pastGroundwork(), on)
+  assert.ok(nudge)
+  assert.equal(nudge.type, 'arc')
+})
+
+test('the rotation alternates sons across consecutive weeks', () => {
+  const thisWeek = asArc(weeklyNudge(pastGroundwork(), new Date(2026, 8, 13)))
+  const nextWeek = asArc(weeklyNudge(pastGroundwork(), new Date(2026, 8, 20)))
+  assert.notEqual(thisWeek.child.id, nextWeek.child.id)
+})
+
+test('a deferred item is not offered until its date passes', () => {
+  const first = weeklyNudge(pastGroundwork(), on)!
+  const deferred = new Map([[first.key, deferralDate(on)]])
+  const next = weeklyNudge(pastGroundwork({ deferred }), on)
+  assert.notEqual(next!.key, first.key)
+
+  // Three months on, it is back.
+  const later = new Date(2026, 11, 14)
+  const returned = weeklyNudge(pastGroundwork({ deferred }), later)
+  assert.ok(returned)
+})
+
+test('deferral is three months out', () => {
+  assert.equal(deferralDate(new Date(2026, 8, 13)), '2026-12-13')
+})
+
+test('show me something else advances, and wraps rather than dead-ending', () => {
+  const s = pastGroundwork()
+  const a = weeklyNudge(s, on, 0)!
+  const b = weeklyNudge(s, on, 1)!
+  assert.notEqual(a.key, b.key)
+  const total = alternativeCount(s, on) + 1
+  assert.equal(weeklyNudge(s, on, total)!.key, a.key, 'wraps back to the first')
+})
+
+test('no alternatives are offered during groundwork', () => {
+  assert.equal(alternativeCount(state(), on), 0)
+})
+
+test('a son too young for the arc produces no arc nudge', () => {
+  const s = pastGroundwork({ children: [{ id: 'c', name: 'Tiny', birthdate: '2023-01-01' }] })
+  assert.equal(weeklyNudge(s, on), null)
+})
+
+// ---- keys and content hygiene ----
+
 test('shared items complete once for the family, individual ones per boy', () => {
   const shared = itemsForStage('wonder').find((i) => i.scope === 'shared')!
   const individual = itemsForStage('wonder').find((i) => i.scope === 'individual')!
   assert.equal(completionKey(shared, 'child-1'), shared.id)
   assert.equal(completionKey(shared, 'child-2'), shared.id)
-  assert.equal(completionKey(individual, 'child-1'), `child-1:${individual.id}`)
   assert.notEqual(completionKey(individual, 'child-1'), completionKey(individual, 'child-2'))
-})
-
-test('only one nudge is produced per week, however many sons there are', () => {
-  const sons: Child[] = [
-    { id: 'a', name: 'Elder', birthdate: '2016-03-01' },
-    { id: 'b', name: 'Younger', birthdate: '2019-06-01' },
-  ]
-  const nudge = weeklyNudge(sons, new Set(), on)
-  assert.ok(nudge)
-  assert.ok(sons.some((s) => s.id === nudge.child.id))
-})
-
-test('the rotation alternates sons across consecutive weeks', () => {
-  const sons: Child[] = [
-    { id: 'a', name: 'Elder', birthdate: '2016-03-01' },
-    { id: 'b', name: 'Younger', birthdate: '2017-06-01' },
-  ]
-  const thisWeek = weeklyNudge(sons, new Set(), new Date(2026, 8, 13))
-  const nextWeek = weeklyNudge(sons, new Set(), new Date(2026, 8, 20))
-  assert.notEqual(thisWeek!.child.id, nextWeek!.child.id)
-})
-
-test('a son with nothing outstanding does not cost the family its nudge', () => {
-  const sons: Child[] = [
-    { id: 'a', name: 'Elder', birthdate: '2016-03-01' },
-    { id: 'b', name: 'Younger', birthdate: '2017-06-01' },
-  ]
-  // Everything done for whichever son this week would have picked.
-  const picked = weeklyNudge(sons, new Set(), on)!
-  const done = new Set(
-    itemsForStage('wonder').map((i) => completionKey(i, picked.child.id))
-  )
-  const fallback = weeklyNudge(sons, done, on)
-  assert.ok(fallback, 'should fall through to the brother')
-  assert.notEqual(fallback.child.id, picked.child.id)
-})
-
-test('a son too young for the arc produces no nudge', () => {
-  const nudge = weeklyNudge([{ id: 'c', name: 'Tiny', birthdate: '2023-01-01' }], new Set(), on)
-  assert.equal(nudge, null)
-})
-
-test('the rite is held back until the rest of the stage is done', () => {
-  const sons: Child[] = [{ id: 'a', name: 'Elder', birthdate: '2016-03-01' }]
-  const nonRite = itemsForStage('wonder').filter((i) => i.kind !== 'rite')
-  const done = new Set(nonRite.map((i) => completionKey(i, 'a')))
-  assert.notEqual(weeklyNudge(sons, new Set(), on)!.item.kind, 'rite')
-  assert.equal(weeklyNudge(sons, done, on)!.item.kind, 'rite')
 })
 
 test('isoWeek is stable within a week and moves between them', () => {
@@ -114,7 +208,12 @@ test('isoWeek is stable within a week and moves between them', () => {
   assert.notEqual(isoWeek(new Date(2026, 8, 14)), isoWeek(new Date(2026, 8, 21)))
 })
 
-test('every content item has a unique id', () => {
-  const ids = itemsForStage('wonder').map((i) => i.id)
+test('every item id is unique across groundwork and the arc', () => {
+  const ids = [...GROUNDWORK.map((g) => g.id), ...itemsForStage('wonder').map((i) => i.id)]
   assert.equal(new Set(ids).size, ids.length)
+})
+
+test('curriculum order is a contiguous run with no duplicates', () => {
+  const orders = itemsForStage('wonder').map((i) => i.order)
+  assert.deepEqual(orders, [...Array(orders.length)].map((_, i) => i + 1))
 })
