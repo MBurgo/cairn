@@ -11,7 +11,7 @@ import {
   weeklyNudge,
   type NudgeState,
 } from '../nudge'
-import { GROUNDWORK, itemsForStage } from '../content'
+import { GROUNDWORK, itemsForStage, titleFor } from '../content'
 import type { Child } from '../types'
 
 const on = new Date(2026, 8, 13) // 13 Sep 2026
@@ -216,4 +216,35 @@ test('every item id is unique across groundwork and the arc', () => {
 test('curriculum order is a contiguous run with no duplicates', () => {
   const orders = itemsForStage('wonder').map((i) => i.order)
   assert.deepEqual(orders, [...Array(orders.length)].map((_, i) => i + 1))
+})
+
+// ---- content shape ----
+
+test('arc titles are instructions and shared ones carry no name placeholder', () => {
+  for (const item of itemsForStage('wonder')) {
+    assert.ok(item.summary.length > 0, `${item.id} needs a summary`)
+    assert.ok(item.summary.length <= 90, `${item.id} summary is too long to skim`)
+    if (item.scope === 'shared') {
+      assert.ok(
+        !item.title.includes('{name}'),
+        `${item.id} is shared, so its title cannot name one son`
+      )
+    }
+  }
+})
+
+test('a name placeholder is replaced, and leaves nothing behind', () => {
+  const individual = itemsForStage('wonder').find(
+    (i) => i.scope === 'individual' && i.title.includes('{name}')
+  )!
+  const rendered = titleFor(individual, 'Eli')
+  assert.ok(rendered.includes('Eli'))
+  assert.ok(!rendered.includes('{name}'))
+})
+
+test('every groundwork item has a summary', () => {
+  for (const item of GROUNDWORK) {
+    assert.ok(item.summary.length > 0, `${item.id} needs a summary`)
+    assert.ok(!item.title.includes('{name}'), 'groundwork is about the father, not a son')
+  }
 })

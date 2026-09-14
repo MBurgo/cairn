@@ -1,6 +1,15 @@
 import type { ArcItem, StageKey } from '../types'
 import { STAGE_ONE } from './stage-one'
 
+/**
+ * Titles are written as instructions with `{name}` where his son's name goes.
+ * Shared items cover every boy at once, so they carry no placeholder — a
+ * content invariant the tests enforce rather than trusting.
+ */
+export function titleFor(item: ArcItem, childName: string): string {
+  return item.title.replace(/\{name\}/g, childName)
+}
+
 export { GROUNDWORK, groundworkById } from './groundwork'
 
 /**

@@ -39,8 +39,15 @@ export interface ArcItem {
    */
   order: number
   weight: Weight
+  /**
+   * An instruction, not a headline. Written in the imperative so a father
+   * reads it and knows what to do. `{name}` is replaced with his son's name —
+   * only on individual items; shared ones cover every boy at once.
+   */
   title: string
-  /** Why it matters and how to actually do it. */
+  /** One line. Enough to decide from without opening anything. */
+  summary: string
+  /** Why it matters and how to actually do it. Shown on request. */
   detail: string
   /** Something a father can say out loud, where a script helps. */
   opener?: string
@@ -60,7 +67,10 @@ export type GroundworkInput = 'reminder-day' | 'writing' | 'acknowledge'
 export interface GroundworkItem {
   id: string
   order: number
+  /** Imperative, like arc titles. No name — groundwork is about the father. */
   title: string
+  /** One line. Enough to decide from without opening anything. */
+  summary: string
   detail: string
   input: GroundworkInput
   /** Shown above the writing box. */

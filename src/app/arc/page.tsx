@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import { getFamilyContext } from '@/lib/data/family'
 import { clockFor } from '@/lib/domain/clock'
-import { itemsForStage } from '@/lib/domain/content'
+import { itemsForStage, titleFor } from '@/lib/domain/content'
 import { completionKey } from '@/lib/domain/nudge'
 import { setItemDone } from '@/app/actions'
 import { Notice } from '@/components/ui'
@@ -90,7 +90,7 @@ export default async function ArcPage() {
                             <h3
                               className={`font-display text-lg ${done ? 'text-ink-faint' : 'text-ink'}`}
                             >
-                              {item.title}
+                              {titleFor(item, child.name)}
                             </h3>
                             {item.scope === 'shared' ? (
                               <span className="rounded-sm bg-accent-soft px-2 py-0.5 font-mono text-[0.6rem] tracking-wider text-accent uppercase">
@@ -100,7 +100,7 @@ export default async function ArcPage() {
                           </div>
                           {!done ? (
                             <>
-                              <p className="text-sm text-ink-soft">{item.detail}</p>
+                              <p className="text-sm text-ink-soft">{item.summary}</p>
                               {item.opener ? (
                                 <p className="border-l-2 border-l-accent bg-surface px-4 py-3 font-display italic">
                                   {item.opener}

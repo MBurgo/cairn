@@ -1,21 +1,19 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { getFamilyContext } from '@/lib/data/family'
+import { getJournal } from '@/lib/data/journal'
 import { supabaseEnv } from '@/lib/supabase/env'
 import { clockFor } from '@/lib/domain/clock'
 import {
   alternativeCount,
   completionKey,
-  groundworkProgress,
   weeklyNudge,
   type NudgeState,
 } from '@/lib/domain/nudge'
 import { GROUNDWORK, itemsForStage } from '@/lib/domain/content'
-import { getJournal } from '@/lib/data/journal'
 import { Notice } from '@/components/ui'
 import { Masthead } from '@/components/masthead'
 import { ArcCard, GroundworkCard } from '@/components/nudges'
-import { QuickCapture, QuickPrayer } from '@/components/quick'
 import { PrayerReviewCard } from '@/components/prayer-review'
 
 /**
@@ -23,6 +21,27 @@ import { PrayerReviewCard } from '@/components/prayer-review'
  * family's data served to another.
  */
 export const dynamic = 'force-dynamic'
+
+/** A tappable row. Deliberately not a card — only the week's thing gets one. */
+function Row({
+  href,
+  label,
+  trailing,
+}: {
+  href: string
+  label: string
+  trailing?: React.ReactNode
+}) {
+  return (
+    <Link
+      href={href}
+      className="flex min-h-14 items-center justify-between gap-4 py-1 text-ink hover:text-accent"
+    >
+      <span className="font-display text-lg">{label}</span>
+      <span className="text-ink-faint">{trailing ?? '›'}</span>
+    </Link>
+  )
+}
 
 export default async function HomePage({
   searchParams,
@@ -55,77 +74,59 @@ export default async function HomePage({
   }
 
   const nudge = weeklyNudge(state, new Date(), skip)
-  const groundwork = groundworkProgress(state)
   const alternatives = alternativeCount(state)
   const journal = await getJournal(ctx.family.id)
   const nameOf = (id: string | null) =>
     id ? (ctx.children.find((c) => c.id === id)?.name ?? 'Him') : 'All of them'
-  const recent = journal.captures.slice(0, 3)
+  const latest = journal.captures[0]
 
   return (
     <>
       <Masthead email={ctx.userEmail} />
-      <main className="mx-auto w-full max-w-2xl flex-1 px-5 pt-8 pb-12">
-        {/* ---- This week: exactly one thing, however many sons ---- */}
-        <section className="flex flex-col gap-4">
-          <div className="flex items-baseline justify-between gap-4">
-            <p className="eyebrow">{groundwork.complete ? 'This week' : 'Before you start'}</p>
-            {!groundwork.complete ? (
-              <p className="font-mono text-xs text-ink-faint tabular-nums">
-                {groundwork.done} of {groundwork.total} done
-              </p>
-            ) : null}
-          </div>
+      <main className="mx-auto w-full max-w-2xl flex-1 px-5 pt-10 pb-16">
+        {/* ---- One thing. Everything else on this screen is quieter than it. ---- */}
+        {nudge?.type === 'groundwork' ? (
+          <GroundworkCard
+            item={nudge.item}
+            weekOf={nudge.item.order}
+            total={GROUNDWORK.length}
+            reminderDay={ctx.family.reminderDay}
+          />
+        ) : null}
 
-          {nudge?.type === 'groundwork' ? (
-            <GroundworkCard
-              item={nudge.item}
-              weekOf={nudge.item.order}
-              total={GROUNDWORK.length}
-              reminderDay={ctx.family.reminderDay}
-            />
-          ) : null}
+        {nudge?.type === 'arc' ? (
+          <ArcCard item={nudge.item} child={nudge.child} alternatives={alternatives} skip={skip} />
+        ) : null}
 
-          {nudge?.type === 'arc' ? (
-            <ArcCard item={nudge.item} child={nudge.child} alternatives={alternatives} skip={skip} />
-          ) : null}
+        {!nudge ? (
+          <Notice tone="info">
+            {ctx.children.length === 0
+              ? 'Add a son and the arc will start.'
+              : 'Nothing outstanding right now. Either your sons are too young for the arc yet, or you are genuinely ahead.'}
+          </Notice>
+        ) : null}
 
-          {!nudge ? (
-            <Notice tone="info">
-              {ctx.children.length === 0
-                ? 'Add a son and the arc will start.'
-                : 'Nothing outstanding right now. Either your sons are too young for the arc yet, or you are genuinely ahead.'}
-            </Notice>
-          ) : null}
+        {skip > 0 && nudge?.type === 'arc' ? (
+          <Link href="/" className="mt-5 inline-block text-sm text-ink-faint hover:text-ink">
+            ← Back to this week&apos;s
+          </Link>
+        ) : null}
 
-          {skip > 0 && nudge?.type === 'arc' ? (
-            <Link href="/" className="self-start text-sm text-ink-faint hover:text-ink">
-              ← Back to this week&apos;s
-            </Link>
-          ) : null}
-
-          {nudge ? (
-            <p className="text-sm text-ink-faint">
-              Nothing here is overdue, and Cairn doesn&apos;t keep score. If this isn&apos;t the
-              week for it, leave it — it will still be here.
-            </p>
+        {/* ---- Available whatever this week's thing is ---- */}
+        <section className="mt-12 flex flex-col divide-y divide-rule border-y border-rule">
+          <Row href="/journal" label="Write something down" />
+          {ctx.children.length > 0 ? (
+            <Row href="/journal" label="Pray something over him" />
           ) : null}
         </section>
 
-        {/* ---- Always available, whatever this week's thing is ---- */}
-        <section className="mt-10 flex flex-col gap-3">
-          <p className="eyebrow">Any time</p>
-          <QuickCapture sons={ctx.children} />
-          <QuickPrayer sons={ctx.children} />
-        </section>
-
-        {/* ---- Prayers that have come back to ask what happened ---- */}
+        {/* ---- A prayer that has come back to ask what happened ---- */}
         {journal.due.length > 0 ? (
           <section className="mt-12 flex flex-col gap-4">
             <p className="eyebrow">You prayed this a while ago</p>
             <PrayerReviewCard prayer={journal.due[0]} childName={nameOf(journal.due[0].childId)} />
             {journal.due.length > 1 ? (
-              <Link href="/journal" className="self-start text-sm font-medium text-accent underline">
+              <Link href="/journal" className="text-sm font-medium text-accent underline">
                 {journal.due.length - 1} more waiting on you
               </Link>
             ) : null}
@@ -134,55 +135,35 @@ export default async function HomePage({
 
         {/* ---- Where each boy is up to ---- */}
         {ctx.children.length > 0 ? (
-          <section className="mt-12 flex flex-col gap-4">
-            <p className="eyebrow">Your sons</p>
-            <div className="flex flex-col divide-y divide-rule border-y border-rule">
-              {ctx.children.map((child) => {
-                const clock = clockFor(child)
-                const items = clock.stage ? itemsForStage(clock.stage.key) : []
-                const done = items.filter((i) =>
-                  ctx.completed.has(completionKey(i, child.id))
-                ).length
-                return (
-                  <div key={child.id} className="flex flex-col gap-1.5 py-5">
-                    <div className="flex flex-wrap items-baseline gap-x-5 gap-y-1">
-                      <p className="font-display text-xl">{child.name}</p>
-                      <p className="font-mono text-sm text-ink-soft">{clock.age}</p>
-                      {clock.stage ? (
-                        <p className="font-mono text-sm text-brass tabular-nums">
-                          {clock.summersLeft} summers left
-                        </p>
-                      ) : null}
-                    </div>
-                    <p className="text-sm text-ink-soft">
-                      {clock.stage
-                        ? `Stage ${clock.stage.number} — ${clock.stage.name} · ${done} of ${items.length} done`
-                        : clock.age < 8
-                          ? `The arc starts at eight — ${clock.daysToNextBirthday} days to his next birthday.`
-                          : 'Past the arc.'}
-                    </p>
-                  </div>
-                )
-              })}
-            </div>
+          <section className="mt-12 flex flex-col divide-y divide-rule border-y border-rule">
+            {ctx.children.map((child) => {
+              const clock = clockFor(child)
+              const items = clock.stage ? itemsForStage(clock.stage.key) : []
+              const done = items.filter((i) => ctx.completed.has(completionKey(i, child.id))).length
+              return (
+                <div key={child.id} className="flex items-baseline justify-between gap-4 py-4">
+                  <p className="font-display text-lg">
+                    {child.name}, {clock.age}
+                  </p>
+                  <p className="font-mono text-sm text-ink-faint tabular-nums">
+                    {clock.stage
+                      ? `${clock.summersLeft} summers · ${done}/${items.length}`
+                      : clock.age < 8
+                        ? 'starts at 8'
+                        : 'past the arc'}
+                  </p>
+                </div>
+              )
+            })}
           </section>
         ) : null}
 
         {/* ---- A bit of history, so it reads as a place rather than a task ---- */}
-        {recent.length > 0 ? (
-          <section className="mt-12 flex flex-col gap-4">
+        {latest ? (
+          <section className="mt-12 flex flex-col gap-3">
             <p className="eyebrow">Lately</p>
-            <div className="flex flex-col divide-y divide-rule border-y border-rule">
-              {recent.map((capture) => (
-                <article key={capture.id} className="flex flex-col gap-1.5 py-4">
-                  <p className="font-mono text-xs tracking-wider text-ink-faint uppercase">
-                    {capture.occurredOn} · {nameOf(capture.childId)}
-                  </p>
-                  <p className="line-clamp-3 text-sm text-ink-soft">{capture.body}</p>
-                </article>
-              ))}
-            </div>
-            <Link href="/journal" className="self-start text-sm font-medium text-accent underline">
+            <p className="line-clamp-3 text-ink-soft">{latest.body}</p>
+            <Link href="/journal" className="text-sm font-medium text-accent underline">
               Everything you&apos;ve written
             </Link>
           </section>
