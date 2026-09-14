@@ -20,7 +20,7 @@ const KIND_HEADING: Record<ItemKind, string> = {
   conversation: 'Conversations',
   competency: 'Competencies',
   experience: 'Experiences',
-  rite: 'The rite',
+  rite: 'The occasion that closes it',
 }
 
 export default async function ArcPage() {
@@ -36,13 +36,13 @@ export default async function ArcPage() {
 
   return (
     <>
-      <Masthead email={ctx.userEmail} />
+      <Masthead />
       <main className="mx-auto w-full max-w-2xl flex-1 px-5 py-10">
         {inArc.length === 0 ? (
           <div className="mt-8">
             <Notice tone="info">
-              None of your sons is eight yet, so the arc hasn&apos;t started. It will appear here on
-              his eighth birthday.
+              None of your sons is eight yet, so the plan hasn&apos;t started. It appears here on his
+              eighth birthday.
             </Notice>
           </div>
         ) : null}
@@ -58,7 +58,7 @@ export default async function ArcPage() {
                 <p className="eyebrow">
                   {child.name} · {clock.age} years old · stage {stage.number} of 4
                 </p>
-                <h1 className="font-display text-3xl">{stage.name}</h1>
+                <h1 className="instruction">{stage.name}</h1>
                 <p className="max-w-prose text-ink-soft">{stage.theme}</p>
                 <p className="font-mono text-xs tracking-wider text-accent uppercase">
                   Reading together: {stage.spineText}
@@ -73,18 +73,14 @@ export default async function ArcPage() {
                 if (ofKind.length === 0) return null
                 return (
                   <div key={kind} className="flex flex-col gap-3">
-                    <h2 className="border-b border-rule pb-2 font-display text-xl">
-                      {KIND_HEADING[kind]}
-                    </h2>
+                    <h2 className="font-display text-xl text-ink-soft">{KIND_HEADING[kind]}</h2>
                     {ofKind.map((item) => {
                       const key = completionKey(item, child.id)
                       const done = ctx.completed.has(key)
                       return (
                         <div
                           key={item.id}
-                          className={`flex flex-col gap-3 rounded-sm border p-5 ${
-                            done ? 'border-rule-soft bg-surface' : 'border-rule bg-raised'
-                          }`}
+                          className="flex flex-col gap-3 py-4"
                         >
                           <div className="flex flex-wrap items-baseline justify-between gap-3">
                             <h3

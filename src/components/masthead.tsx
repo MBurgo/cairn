@@ -1,29 +1,37 @@
 import Link from 'next/link'
 import { signOut } from '@/app/actions'
 
-export function Masthead({ email }: { email?: string }) {
+/** Quiet. The date rather than an email address — it belongs to the week. */
+export function Masthead({ trailing }: { trailing?: string }) {
+  const today = new Date().toLocaleDateString('en-AU', {
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+  })
   return (
-    <header className="border-b border-rule">
-      <div className="mx-auto flex max-w-2xl items-center justify-between gap-4 px-5 py-4">
-        <Link href="/" className="font-display text-xl text-accent">
-          Cairn
-        </Link>
-        {email ? (
-          <div className="flex items-center gap-4">
-            <span className="eyebrow hidden sm:inline">{email}</span>
-            <form action={signOut}>
-              <button
-                type="submit"
-                className="-mx-3 inline-flex min-h-11 items-center rounded-sm px-3 text-sm
-                           text-ink-faint hover:text-ink focus-visible:outline-2
-                           focus-visible:outline-offset-2 focus-visible:outline-accent"
-              >
-                Sign out
-              </button>
-            </form>
-          </div>
-        ) : null}
-      </div>
+    <header className="mx-auto flex w-full max-w-2xl items-center justify-between gap-4 px-5 pt-4">
+      <Link href="/" className="font-display text-lg text-accent">
+        Cairn
+      </Link>
+      <span className="font-mono text-[0.65rem] tracking-widest text-ink-faint uppercase">
+        {trailing ?? today}
+      </span>
     </header>
+  )
+}
+
+/** Sign out lives on the Sons tab now, not on every screen. */
+export function SignOut() {
+  return (
+    <form action={signOut}>
+      <button
+        type="submit"
+        className="-mx-2 inline-flex min-h-11 items-center rounded-lg px-2 text-sm
+                   text-ink-faint hover:text-ink focus-visible:outline-2
+                   focus-visible:outline-offset-2 focus-visible:outline-accent"
+      >
+        Sign out
+      </button>
+    </form>
   )
 }

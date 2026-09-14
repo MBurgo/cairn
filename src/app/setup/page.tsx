@@ -20,11 +20,11 @@ export default async function SetupPage() {
 
   return (
     <>
-      <Masthead email={ctx.userEmail} />
-      <main className="mx-auto w-full max-w-2xl flex-1 px-5 py-10">
+      <Masthead />
+      <main className="mx-auto w-full max-w-2xl flex-1 px-5 pt-12 pb-10">
         <div className="flex flex-col gap-4">
           <p className="eyebrow">Welcome</p>
-          <h1 className="font-display text-3xl leading-tight">
+          <h1 className="instruction">
             Raising a son on purpose, one week at a time.
           </h1>
           <div className="flex max-w-prose flex-col gap-3 text-ink-soft">
@@ -59,10 +59,10 @@ export default async function SetupPage() {
           action={createFamily}
           submitLabel="Create and continue"
           pendingLabel="Creating…"
-          className="mt-5 flex flex-col gap-5 rounded-sm border border-rule bg-raised p-6"
+          className="mt-6 flex flex-col gap-5"
         >
           <Field label="Family name" name="familyName" placeholder="e.g. the Burgess family" />
-          <div className="h-px bg-rule-soft" />
+          
           <Field label="His name" name="sonName" placeholder="e.g. Eli" />
           <Field label="Date of birth" name="birthdate" type="date" max={today} />
         </ActionForm>

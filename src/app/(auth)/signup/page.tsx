@@ -45,8 +45,8 @@ export default function SignupPage() {
 
   if (sentTo) {
     return (
-      <div className="flex flex-col gap-4 rounded-sm border border-rule bg-raised p-6">
-        <h1 className="font-display text-2xl">Check your email</h1>
+      <div className="flex flex-col gap-5">
+        <h1 className="instruction">Check your email</h1>
         <p className="text-sm text-ink-soft">
           We&apos;ve sent a confirmation link to <strong className="text-ink">{sentTo}</strong>.
           Click it and you&apos;ll be signed in.
@@ -59,8 +59,8 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="flex flex-col gap-5 rounded-sm border border-rule bg-raised p-6">
-      <h1 className="font-display text-2xl">Create an account</h1>
+    <div className="flex flex-col gap-6">
+      <h1 className="instruction">Create an account</h1>
       {error ? <Notice>{error}</Notice> : null}
       <form onSubmit={onSubmit} className="flex flex-col gap-4">
         <Field label="Email" name="email" type="email" autoComplete="email" />

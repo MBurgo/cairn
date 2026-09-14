@@ -3,7 +3,7 @@ import { getFamilyContext } from '@/lib/data/family'
 import { clockFor } from '@/lib/domain/clock'
 import { addSon, addMentor, deleteMentor } from '@/app/actions'
 import { Field } from '@/components/ui'
-import { Masthead } from '@/components/masthead'
+import { Masthead, SignOut } from '@/components/masthead'
 import { ActionForm } from '@/components/action-form'
 
 /**
@@ -21,16 +21,16 @@ export default async function SonsPage() {
 
   return (
     <>
-      <Masthead email={ctx.userEmail} />
-      <main className="mx-auto w-full max-w-2xl flex-1 px-5 pt-8 pb-12">
-        <h1 className="font-display text-3xl">{ctx.family.name}</h1>
+      <Masthead />
+      <main className="mx-auto w-full max-w-2xl flex-1 px-5 pt-12 pb-10">
+        <h1 className="instruction">{ctx.family.name}</h1>
 
         <section className="mt-8 flex flex-col gap-4">
           <p className="eyebrow">Your sons</p>
           {ctx.children.length === 0 ? (
             <p className="text-ink-soft">No sons added yet.</p>
           ) : (
-            <div className="flex flex-col divide-y divide-rule border-y border-rule">
+            <div className="flex flex-col gap-5">
               {ctx.children.map((child) => {
                 const clock = clockFor(child)
                 return (
@@ -55,7 +55,7 @@ export default async function SonsPage() {
 
         {/* ---- The men around them. Deliberately a list, not a CRM. ---- */}
         <section className="mt-12 flex flex-col gap-4">
-          <p className="eyebrow">The men around them</p>
+          <p className="eyebrow">The men you want around them</p>
           {ctx.mentors.length === 0 ? (
             <p className="max-w-prose text-ink-soft">
               These men don&apos;t need the app. You do. Write down the four to eight men
@@ -63,7 +63,7 @@ export default async function SonsPage() {
               Cairn will start suggesting things to ask them.
             </p>
           ) : (
-            <div className="flex flex-col divide-y divide-rule border-y border-rule">
+            <div className="flex flex-col gap-5">
               {ctx.mentors.map((mentor) => (
                 <div key={mentor.id} className="flex flex-col gap-1 py-4">
                   <div className="flex flex-wrap items-baseline gap-x-4">
@@ -90,7 +90,7 @@ export default async function SonsPage() {
             action={addMentor}
             submitLabel="Add him"
             pendingLabel="Adding…"
-            className="flex flex-col gap-4 rounded-sm border border-rule bg-raised p-6"
+            className="flex flex-col gap-5"
           >
             <Field label="His name" name="name" placeholder="e.g. Dave" />
             <Field
@@ -102,18 +102,22 @@ export default async function SonsPage() {
           </ActionForm>
         </section>
 
-        <section className="mt-12 flex flex-col gap-4">
+        <section className="mt-14 flex flex-col gap-4">
           <p className="eyebrow">Add a son</p>
           <ActionForm
             action={addSon}
             submitLabel="Add him"
             pendingLabel="Adding…"
-            className="flex flex-col gap-4 rounded-sm border border-rule bg-raised p-6"
+            className="flex flex-col gap-5"
           >
             <Field label="His name" name="name" />
             <Field label="Date of birth" name="birthdate" type="date" max={today} />
           </ActionForm>
         </section>
+
+        <div className="mt-16 flex justify-center">
+          <SignOut />
+        </div>
       </main>
     </>
   )

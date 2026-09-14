@@ -1,75 +1,33 @@
 import type { Child } from '@/lib/domain/types'
 import { addCapture, addPrayer } from '@/app/actions'
 import { ActionForm } from '@/components/action-form'
-import { TextArea } from '@/components/ui'
+import { Select, Sheet } from '@/components/ui'
 
-function Disclosure({
-  summary,
-  hint,
-  children,
-}: {
-  summary: string
-  hint: string
-  children: React.ReactNode
-}) {
-  return (
-    <details className="group rounded-sm border border-rule bg-raised">
-      <summary
-        className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-4 px-5 py-4
-                   [&::-webkit-details-marker]:hidden"
-      >
-        <span className="font-display text-lg">{summary}</span>
-        <span className="text-sm text-ink-faint group-open:hidden">{hint}</span>
-        <span className="hidden text-sm text-ink-faint group-open:inline">Close</span>
-      </summary>
-      <div className="border-t border-rule-soft px-5 py-5">{children}</div>
-    </details>
-  )
-}
-
-function ChildSelect({
-  sons,
-  name,
-  includeBoth,
-}: {
-  sons: Child[]
-  name: string
-  includeBoth: boolean
-}) {
-  return (
-    <label className="flex flex-col gap-1.5">
-      <span className="text-sm font-medium text-ink-soft">Who&apos;s it about</span>
-      <select
-        id={name}
-        name={name}
-        className="min-h-11 w-full rounded-sm border border-rule bg-raised px-3 py-2.5 text-ink
-                   focus:outline-2 focus:outline-offset-1 focus:outline-accent"
-      >
-        {includeBoth ? <option value="">All of them</option> : null}
-        {sons.map((son) => (
-          <option key={son.id} value={son.id}>
-            {son.name}
-          </option>
-        ))}
-      </select>
-    </label>
-  )
+function sonOptions(sons: Child[], includeAll: boolean) {
+  return [
+    ...(includeAll ? [{ value: '', label: 'All of them' }] : []),
+    ...sons.map((s) => ({ value: s.id, label: s.name })),
+  ]
 }
 
 /** Thirty seconds, needs nothing from his son, goes into the book. */
 export function QuickCapture({ sons }: { sons: Child[] }) {
   return (
-    <Disclosure summary="Write something down" hint="30 seconds">
-      <ActionForm action={addCapture} submitLabel="Save" pendingLabel="Saving…">
-        <TextArea
-          label="What happened, or what he said"
+    <section className="flex flex-col gap-4">
+      <h2 className="font-display text-xl">Write down something he said or did</h2>
+      <ActionForm action={addCapture} submitLabel="Keep it" pendingLabel="Saving…">
+        <Sheet
+          prompt="What happened?"
           name="body"
-          rows={4}
-          placeholder="Something he said at dinner. Something you noticed. Anything you'd want him to read at eighteen."
+          rows={5}
+          keptFor={sons.length === 1 ? sons[0].name : undefined}
+          placeholder="Anything you'd want him to read at eighteen."
         />
-        {sons.length > 0 ? <ChildSelect sons={sons} name="childId" includeBoth /> : null}
+        {sons.length > 1 ? (
+          <Select label="Who it's about" name="childId" options={sonOptions(sons, true)} />
+        ) : null}
       </ActionForm>
-    </Disclosure>
+    </section>
   )
 }
 
@@ -77,30 +35,34 @@ export function QuickCapture({ sons }: { sons: Child[] }) {
 export function QuickPrayer({ sons }: { sons: Child[] }) {
   if (sons.length === 0) return null
   return (
-    <Disclosure summary="Pray something over him" hint="Comes back later">
-      <ActionForm action={addPrayer} submitLabel="Save" pendingLabel="Saving…">
-        <TextArea
-          label="What are you asking for him?"
+    <section className="flex flex-col gap-4">
+      <h2 className="font-display text-xl">
+        Write down a prayer for {sons.length === 1 ? sons[0].name : 'one of them'}
+      </h2>
+      <ActionForm action={addPrayer} submitLabel="Keep it" pendingLabel="Saving…">
+        <Sheet
+          prompt="What are you asking for him?"
           name="body"
-          rows={4}
+          rows={5}
+          keptFor={sons.length === 1 ? sons[0].name : undefined}
           placeholder="Be specific. Vague prayers are impossible to answer later."
         />
-        <ChildSelect sons={sons} name="childId" includeBoth={false} />
-        <label className="flex flex-col gap-1.5">
-          <span className="text-sm font-medium text-ink-soft">Ask me about it in</span>
-          <select
-            id="reviewMonths"
-            name="reviewMonths"
-            defaultValue={6}
-            className="min-h-11 w-full rounded-sm border border-rule bg-raised px-3 py-2.5 text-ink
-                       focus:outline-2 focus:outline-offset-1 focus:outline-accent"
-          >
-            <option value={3}>3 months</option>
-            <option value={6}>6 months</option>
-            <option value={12}>A year</option>
-          </select>
-        </label>
+        {sons.length > 1 ? (
+          <Select label="Who it's for" name="childId" options={sonOptions(sons, false)} />
+        ) : (
+          <input type="hidden" name="childId" value={sons[0].id} />
+        )}
+        <Select
+          label="Bring it back and ask me in"
+          name="reviewMonths"
+          defaultValue={6}
+          options={[
+            { value: 3, label: '3 months' },
+            { value: 6, label: '6 months' },
+            { value: 12, label: 'A year' },
+          ]}
+        />
       </ActionForm>
-    </Disclosure>
+    </section>
   )
 }
