@@ -70,13 +70,15 @@ const PASSAGES: Record<string, Passage> = {
     reference: 'Psalm 23',
     translation: WEBBE,
     text:
-      'The LORD is my shepherd; I shall lack nothing. He makes me lie down in green pastures. ' +
-      'He leads me beside still waters. He restores my soul. He guides me in the paths of ' +
-      'righteousness for his name’s sake. Even though I walk through the valley of the shadow ' +
-      'of death, I will fear no evil, for you are with me. Your rod and your staff, they comfort ' +
-      'me. You prepare a table before me in the presence of my enemies. You anoint my head with ' +
-      'oil. My cup runs over. Surely goodness and loving kindness shall follow me all the days of ' +
-      'my life, and I will dwell in the LORD’s house forever.',
+      'The LORD is my shepherd; I shall lack nothing.\n' +
+      'He makes me lie down in green pastures. He leads me beside still waters.\n' +
+      'He restores my soul. He guides me in the paths of righteousness for his name’s sake.\n' +
+      'Even though I walk through the valley of the shadow of death, I will fear no evil, for ' +
+      'you are with me. Your rod and your staff, they comfort me.\n' +
+      'You prepare a table before me in the presence of my enemies. You anoint my head with ' +
+      'oil. My cup runs over.\n' +
+      'Surely goodness and loving kindness shall follow me all the days of my life, and I will ' +
+      'dwell in the LORD’s house forever.',
   },
   'Hebrews 10:24–25': {
     reference: 'Hebrews 10:24–25',

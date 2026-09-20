@@ -149,6 +149,35 @@ export async function setItemDone(
 }
 
 /**
+ * The last step of a session. Writes the same arc_progress row the card's
+ * button writes — a session is a nicer way to reach the same state, not a
+ * second kind of completion — and then sends him home, because ending on the
+ * final step would leave him standing inside a flow he has finished.
+ */
+export async function completeSession(
+  _prev: ActionResult | null,
+  formData: FormData
+): Promise<ActionResult> {
+  const itemId = String(formData.get('itemId') ?? '')
+  const childId = String(formData.get('childId') ?? '')
+
+  const item = itemById(itemId)
+  if (!item?.session) return { error: 'Unknown session.' }
+
+  const familyId = await currentFamilyId()
+  if (!familyId) return { error: 'No family found.' }
+
+  const scopedChildId = item.scope === 'shared' ? null : childId
+  if (item.scope !== 'shared' && !scopedChildId) return { error: 'Which son?' }
+
+  const error = await writeProgress(familyId, scopedChildId, itemId, 'done', null)
+  if (error) return { error }
+
+  refresh()
+  redirect('/')
+}
+
+/**
  * "Not yet." Pushes an item three months out instead of forcing a father to
  * either lie about it or ignore the app. A false completion would end up
  * printed in his son's book.

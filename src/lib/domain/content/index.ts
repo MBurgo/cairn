@@ -7,9 +7,16 @@ import { STAGE_ONE } from './stage-one'
  * content invariant the tests enforce rather than trusting.
  */
 export function titleFor(item: ArcItem, childName: string, mentorName?: string): string {
-  return item.title
-    .replace(/\{name\}/g, childName)
-    .replace(/\{mentor\}/g, mentorName ?? 'him')
+  return withName(item.title, childName).replace(/\{mentor\}/g, mentorName ?? 'him')
+}
+
+/**
+ * `{name}` stands in for his son everywhere content is written — titles and
+ * session text alike. Shared items carry no placeholder at all, which the
+ * tests enforce rather than trusting.
+ */
+export function withName(text: string, childName: string): string {
+  return text.replace(/\{name\}/g, childName)
 }
 
 export { GROUNDWORK, groundworkById } from './groundwork'
