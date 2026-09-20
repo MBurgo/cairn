@@ -26,6 +26,41 @@ export interface Stage {
  */
 export type Weight = 'gentle' | 'moderate' | 'weighty'
 
+export type StepKey = 'read' | 'talk' | 'do' | 'pray'
+
+/**
+ * How an item is run, for the few where knowing what to do is not the problem
+ * and starting is. Read aloud, talk, do one thing, pray — with him in the room.
+ *
+ * The passage, the go-first line and the opener are NOT repeated here: they
+ * live on the item, and an item carrying a session must have all three.
+ *
+ * There is deliberately no length. A duration on each session is a way for a
+ * father to feel he did it wrong — twenty minutes and he is behind, four and
+ * he short-changed his son. The expectation is set once, in groundwork week
+ * one, and never mentioned again.
+ */
+export interface Session {
+  /** When "now" is wrong. Having one flips the card to read-it-through-first. */
+  cue?: string
+  /** Defaults to read, talk, do, pray. Only the death conversation overrides it. */
+  order?: readonly StepKey[]
+  /** What to do with `item.scripture` — not the passage itself. */
+  read: string
+  /** One or two questions, asked after `fatherFirst` and `opener`. Never three. */
+  ask: readonly string[]
+  /** The concrete thing: before he leaves the room, or written down tonight. */
+  do: string
+  /** Words he can use, or ignore. */
+  pray: string
+  /**
+   * Some prayers are wrong in the room. Praying over a boy the moment the
+   * puberty conversation ends makes it solemn, which is the one thing it must
+   * not be — so that one is prayed alone, after he has gone to bed.
+   */
+  prayAlone?: boolean
+}
+
 export interface ArcItem {
   /** Stable across content edits — progress rows reference it. */
   id: string
@@ -63,6 +98,12 @@ export interface ArcItem {
    * man, and are never served until the father has named at least one.
    */
   involves?: 'mentor'
+  /**
+   * Run with him in the room, a step at a time, rather than read beforehand.
+   * Only for items that happen in one sitting with his son present — which,
+   * in stage one, is exactly the five conversations.
+   */
+  session?: Session
 }
 
 /** Which part of his son's book a piece of writing belongs to. */

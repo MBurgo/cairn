@@ -3,8 +3,9 @@ import type { ArcItem, Child, GroundworkItem, Mentor } from '@/lib/domain/types'
 import { titleFor } from '@/lib/domain/content'
 import { completeGroundwork, deferItem, setItemDone, skipGroundwork } from '@/app/actions'
 import { ActionForm } from '@/components/action-form'
-import { DayPicker, Prose, Sheet, WeightNote } from '@/components/ui'
+import { Card, DayPicker, Kicker, LinkButton, Prose, Sheet, WeightNote } from '@/components/ui'
 import { Scripture } from '@/components/scripture'
+import { sessionPath } from '@/components/session'
 
 const KIND_LABEL: Record<ArcItem['kind'], string> = {
   conversation: 'a conversation',
@@ -29,27 +30,6 @@ function disclosureLabel(item: ArcItem): string {
     default:
       return 'How to do it, and why it matters'
   }
-}
-
-/**
- * The week's one thing, on a card that is always the opposite of the ground.
- * Dark on stone by day, bone on dark at night — either way it is the single
- * weighty object on the screen.
- */
-function Card({ children }: { children: React.ReactNode }) {
-  return (
-    <section className="flex flex-col gap-6 rounded-2xl bg-card px-6 py-7 text-card-ink">
-      {children}
-    </section>
-  )
-}
-
-function Kicker({ children }: { children: React.ReactNode }) {
-  return (
-    <p className="font-mono text-[0.65rem] tracking-[0.15em] text-card-soft uppercase">
-      {children}
-    </p>
-  )
 }
 
 function More({ label, children }: { label: string; children: React.ReactNode }) {
@@ -174,17 +154,50 @@ export function ArcCard({
         {item.weight === 'weighty' ? <WeightNote /> : null}
       </div>
 
-      <ActionForm
-        action={setItemDone}
-        submitLabel="We&rsquo;ve done this"
-        pendingLabel="Marking…"
-        onCard
-        footnote={item.scope === 'shared' ? 'Counts for every son' : undefined}
-      >
-        <input type="hidden" name="itemId" value={item.id} />
-        <input type="hidden" name="childId" value={child.id} />
-        <input type="hidden" name="done" value="true" />
-      </ActionForm>
+      {item.session ? (
+        /*
+         * For the five conversations the primary action is to run the thing,
+         * not to record it. Knowing he should have the conversation was never
+         * what stopped him. Recording it afterwards stays available, quietly,
+         * for the father who had it in the car on Tuesday — making him click
+         * through four screens to log that would be its own small insult.
+         */
+        <div className="flex flex-col gap-3">
+          {item.session.cue ? (
+            <p className="text-sm text-card-accent">{item.session.cue}</p>
+          ) : null}
+          <LinkButton
+            href={sessionPath(item.id, child.id, item.session.cue ? undefined : 1)}
+            onCard
+          >
+            {item.session.cue ? 'Read it through first' : 'Walk me through it'}
+          </LinkButton>
+          <ActionForm
+            action={setItemDone}
+            variant="link"
+            submitLabel="We&rsquo;ve already done this"
+            pendingLabel="Marking…"
+            onCard
+            footnote={item.scope === 'shared' ? 'Counts for every son' : undefined}
+          >
+            <input type="hidden" name="itemId" value={item.id} />
+            <input type="hidden" name="childId" value={child.id} />
+            <input type="hidden" name="done" value="true" />
+          </ActionForm>
+        </div>
+      ) : (
+        <ActionForm
+          action={setItemDone}
+          submitLabel="We&rsquo;ve done this"
+          pendingLabel="Marking…"
+          onCard
+          footnote={item.scope === 'shared' ? 'Counts for every son' : undefined}
+        >
+          <input type="hidden" name="itemId" value={item.id} />
+          <input type="hidden" name="childId" value={child.id} />
+          <input type="hidden" name="done" value="true" />
+        </ActionForm>
+      )}
 
       <More label={disclosureLabel(item)}>
         {item.fatherFirst ? (

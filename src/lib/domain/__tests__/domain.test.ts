@@ -11,8 +11,9 @@ import {
   weeklyNudge,
   type NudgeState,
 } from '../nudge'
-import { GROUNDWORK, itemsForStage, titleFor } from '../content'
-import type { Child } from '../types'
+import { GROUNDWORK, allItems, itemsForStage, titleFor } from '../content'
+import { passageFor } from '../content/scripture'
+import type { ArcItem, Child, Session, StepKey } from '../types'
 
 const on = new Date(2026, 8, 13) // 13 Sep 2026
 
@@ -340,4 +341,104 @@ test('stages are named, not described', () => {
     STAGES.map((s) => s.name),
     ['The Watching', 'The Forge', 'The Proving', 'The Send']
   )
+})
+
+
+// ---- sessions ----
+//
+// A session is run with his son in the room, a step at a time. Each of these
+// catches a way a future content edit could quietly make one worse.
+
+const STEPS: StepKey[] = ['read', 'talk', 'do', 'pray']
+
+/** Every item carrying a session, and the session with it. */
+function sessions(): [ArcItem, Session][] {
+  return allItems()
+    .filter((i) => i.session)
+    .map((i) => [i, i.session as Session])
+}
+
+/** Everything a session shows a father, item fields included. */
+function sessionText(item: ArcItem, session: Session): string {
+  return [item.opener, item.fatherFirst, session.read, session.do, session.pray, ...session.ask]
+    .filter(Boolean)
+    .join(' ')
+}
+
+test('in stage one, a session means a conversation and nothing else', () => {
+  const withSession = itemsForStage('wonder').filter((i) => i.session)
+  const conversations = itemsForStage('wonder').filter((i) => i.kind === 'conversation')
+  assert.deepEqual(
+    withSession.map((i) => i.id).sort(),
+    conversations.map((i) => i.id).sort(),
+    'a session is for one sitting with him present — not a competency, an experience or the rite'
+  )
+})
+
+test('a session has the passage, the opener and the go-first line it reads off the item', () => {
+  for (const [item] of sessions()) {
+    assert.ok(item.scripture, `${item.id} has a session, so it needs a passage for the Read step`)
+    assert.ok(item.opener, `${item.id} has a session, so it needs an opener for the Talk step`)
+    assert.ok(item.fatherFirst, `${item.id} has a session, so it needs a go-first line`)
+  }
+})
+
+test('a session never sends a father to a website mid-conversation', () => {
+  for (const [item] of sessions()) {
+    assert.ok(
+      passageFor(item.scripture as string),
+      `${item.id} reads ${item.scripture} aloud, so it must be carried inline, not linked`
+    )
+  }
+})
+
+test('gentle things do not get a session', () => {
+  for (const [item] of sessions()) {
+    assert.notEqual(item.weight, 'gentle', `${item.id}: if it needs a script it was never gentle`)
+  }
+})
+
+test('a session is never handed to an item the father is not part of', () => {
+  for (const [item] of sessions()) {
+    assert.notEqual(item.involves, 'mentor', `${item.id}: the father is not in the room`)
+  }
+})
+
+test('shared sessions name no son, and individual prayers name him', () => {
+  for (const [item, session] of sessions()) {
+    if (item.scope === 'shared') {
+      assert.ok(
+        !sessionText(item, session).includes('{name}'),
+        `${item.id} covers every boy at once, so nothing in it can name one`
+      )
+    } else {
+      assert.ok(
+        session.pray.includes('{name}'),
+        `${item.id}: pray over him by name, or you are praying about a category`
+      )
+    }
+  }
+})
+
+test('a reordered session drops no step', () => {
+  for (const [item, session] of sessions()) {
+    if (!session.order) continue
+    assert.deepEqual(
+      [...session.order].sort(),
+      [...STEPS].sort(),
+      `${item.id} reorders the steps, which is allowed; dropping one is not`
+    )
+  }
+})
+
+test('every step of a session has something to say, and asking is not interviewing', () => {
+  for (const [item, session] of sessions()) {
+    for (const field of ['read', 'do', 'pray'] as const) {
+      assert.ok(session[field].trim(), `${item.id} has an empty ${field} step`)
+    }
+    assert.ok(
+      session.ask.length >= 1 && session.ask.length <= 2,
+      `${item.id} asks ${session.ask.length} questions — three is an interview`
+    )
+  }
 })

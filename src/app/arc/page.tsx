@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { getFamilyContext } from '@/lib/data/family'
 import { clockFor } from '@/lib/domain/clock'
@@ -7,6 +8,7 @@ import { setItemDone } from '@/app/actions'
 import { Notice } from '@/components/ui'
 import { Masthead } from '@/components/masthead'
 import { ActionForm } from '@/components/action-form'
+import { sessionPath } from '@/components/session'
 import type { ItemKind } from '@/lib/domain/types'
 
 /**
@@ -106,6 +108,21 @@ export default async function ArcPage() {
                                 <p className="font-mono text-xs tracking-wider text-rust uppercase">
                                   {item.scripture}
                                 </p>
+                              ) : null}
+                              {item.session ? (
+                                <Link
+                                  href={sessionPath(
+                                    item.id,
+                                    child.id,
+                                    item.session.cue ? undefined : 1
+                                  )}
+                                  prefetch={false}
+                                  className="text-sm text-rust underline underline-offset-4"
+                                >
+                                  {item.session.cue
+                                    ? 'Read it through'
+                                    : 'Walk me through it'}
+                                </Link>
                               ) : null}
                             </>
                           ) : null}

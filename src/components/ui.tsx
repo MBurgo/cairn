@@ -128,6 +128,28 @@ export function Sheet({
   )
 }
 
+/**
+ * The dark card. Always the opposite of the ground — dark on stone by day,
+ * bone on dark at night — so that whatever sits on it is the single weighty
+ * object on the screen. The week's thing lives here, and so does a session.
+ */
+export function Card({ children }: { children: React.ReactNode }) {
+  return (
+    <section className="flex flex-col gap-6 rounded-2xl bg-card px-6 py-7 text-card-ink">
+      {children}
+    </section>
+  )
+}
+
+/** The quiet line above whatever the card is holding. */
+export function Kicker({ children }: { children: React.ReactNode }) {
+  return (
+    <p className="font-mono text-[0.65rem] tracking-[0.15em] text-card-soft uppercase">
+      {children}
+    </p>
+  )
+}
+
 /** The only filled shape in its region. Inverts when it sits on the card. */
 export function Submit({
   children,
@@ -152,6 +174,32 @@ export function Submit({
     >
       {children}
     </button>
+  )
+}
+
+/**
+ * An offer he can leave alone. Unchecked by default and phrased as a whole
+ * sentence, because the thing being offered is worth a sentence.
+ */
+export function Check({
+  name,
+  label,
+  onCard = false,
+}: {
+  name: string
+  label: string
+  onCard?: boolean
+}) {
+  return (
+    <label className="flex min-h-11 cursor-pointer items-start gap-3 py-1">
+      <input
+        type="checkbox"
+        name={name}
+        value="true"
+        className="mt-0.5 size-5 shrink-0 accent-[var(--rust)]"
+      />
+      <span className={`text-sm ${onCard ? 'text-card-soft' : 'text-ink-soft'}`}>{label}</span>
+    </label>
   )
 }
 
@@ -215,6 +263,36 @@ export function QuietRow({
   return (
     <a href={href} className={className}>
       {inner}
+    </a>
+  )
+}
+
+/**
+ * A link wearing the Submit button's clothes. Moving between the steps of a
+ * session saves nothing, so it is a link and not a form — which also means
+ * the browser's back button walks the steps for free.
+ */
+export function LinkButton({
+  href,
+  children,
+  onCard = false,
+}: {
+  href: string
+  children: React.ReactNode
+  onCard?: boolean
+}) {
+  return (
+    <a
+      href={href}
+      className={`inline-flex min-h-12 w-full items-center justify-center rounded-full px-7 py-3.5
+                  font-semibold hover:opacity-90 focus-visible:outline-2
+                  focus-visible:outline-offset-2 ${
+                    onCard
+                      ? 'bg-card-ink text-card focus-visible:outline-card-ink'
+                      : 'bg-card text-card-ink focus-visible:outline-rust'
+                  }`}
+    >
+      {children}
     </a>
   )
 }

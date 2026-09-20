@@ -15,6 +15,13 @@ import type { ArcItem } from '../types'
  */
 export const STAGE_ONE: ArcItem[] = [
   // ---- Conversations ----
+  //
+  // Every conversation in this stage carries a session: four steps run with
+  // his son in the room rather than four paragraphs read beforehand. Knowing
+  // he should have the conversation was never the problem; starting it is.
+  //
+  // A session reads `scripture`, `fatherFirst` and `opener` off the item, so
+  // all three are required here — the tests enforce it.
   {
     id: 'w-conv-babies',
     order: 17,
@@ -30,6 +37,17 @@ export const STAGE_ONE: ArcItem[] = [
       'Say first that nobody explained this properly to you, or that whoever did made it awkward. Naming your own discomfort out loud is what stops you handing it on.',
     opener:
       '"Do you know how babies actually get made? Ask me anything you like about it — I won\'t be weird about it."',
+    scripture: 'Psalm 139:13–14',
+    session: {
+      read: 'He heard these words months ago, in the conversation about being made on purpose. That is deliberate: the psalm has already told him why he exists, so this conversation only has to tell him how.',
+      ask: [
+        'What have you already heard about it, and who from?',
+        'Anything you want to ask me? Anything at all.',
+      ],
+      do: 'Then go and do something completely ordinary together. Get a drink, kick a ball, drive home with the radio on. The ordinariness afterwards is what tells him it was not a big deal.',
+      prayAlone: true,
+      pray: 'God, I have just told him. Keep {name} clean-minded and unashamed. Keep the door open between us, so he comes to me and not to a screen. Amen.',
+    },
   },
   {
     id: 'w-conv-death',
@@ -44,7 +62,18 @@ export const STAGE_ONE: ArcItem[] = [
       'Usually triggered by a pet, a grandparent, or a question out of nowhere at bedtime. A boy who learns his father can sit in a sad thing without fixing it will bring him the hard things later.',
     fatherFirst:
       'Tell him about the first death you remember and how old you were. Say that you found it frightening, if you did. Then let him be sad before you say anything you believe.',
+    opener: '"Do you want to talk about it, or just sit here for a bit?"',
     scripture: 'Psalm 23',
+    session: {
+      cue: 'When it comes up — a pet, a grandparent, a question out of nowhere at bedtime.',
+      // The only item that reorders the steps. You do not open a psalm at a boy
+      // standing over a dead bird: he is sad first, and the words come after.
+      order: ['talk', 'do', 'read', 'pray'],
+      ask: ['What are you thinking about it?'],
+      do: 'Ask whether he would like to do something to remember: a stone in the garden, a drawing, the name written down somewhere. If he says yes, do it this week.',
+      read: 'Now rather than earlier. Read the whole thing slowly, and do not explain it afterwards.',
+      pray: 'God, we are sad. {name} is sad. You know what this is like from the inside. Be near him tonight. Amen.',
+    },
   },
   {
     id: 'w-conv-why-church',
@@ -57,6 +86,20 @@ export const STAGE_ONE: ArcItem[] = [
     summary: 'In your own words, in about two sentences.',
     detail:
       'At this age he assumes it is simply what your family does, like the football team you support. Give him the real reason. If the honest answer includes something you find difficult about it, say that too — it costs you nothing now and buys a great deal at fifteen.',
+    fatherFirst:
+      'Say the hard part first: the Sunday you did not want to go, the bit you find boring, the person there you struggle with. Then say why you go anyway. A boy who has heard his father admit church can be dull is far less likely to decide at fifteen that everyone was pretending.',
+    opener:
+      '"Do you know why we actually go on Sundays? It isn\'t just what our family does."',
+    scripture: 'Hebrews 10:24–25',
+    session: {
+      read: 'Read it out, then ask what "provoke one another to love and good works" would look like at our church, specifically.',
+      ask: [
+        "What do you think we'd lose if we stopped going?",
+        'What would you change about it if you could?',
+      ],
+      do: 'Take one of their answers seriously before the month is out: sit somewhere different, talk to the person they named, skip the thing they hate. Then tell them you did it because they said so.',
+      pray: 'God, thank you for our church and the people in it. Where it is hard, help us stay. Where it is good, help us notice. Amen.',
+    },
   },
   {
     id: 'w-conv-fear',
@@ -69,7 +112,16 @@ export const STAGE_ONE: ArcItem[] = [
     summary: 'A sentence to pray, a place to come, a light he can turn on.',
     detail:
       'Something concrete to do, rather than a reassurance that it will be fine. Tell him what frightens you, briefly and truthfully. Being told that his father is also sometimes afraid is one of the most stabilising things a boy can hear.',
+    fatherFirst:
+      'Name something that frightens you now, not when you were his age. Being told that his father is currently afraid of something and still functioning is one of the most stabilising things a boy can hear.',
+    opener: '"Can I tell you something that still scares me?"',
     scripture: 'Psalm 56:3',
+    session: {
+      read: 'Eight words. Read them, then have him read them back. He should be able to say it without the phone by the end.',
+      ask: ["What's the one that gets you at night?", 'What do you do at the moment, when it happens?'],
+      do: 'Agree all three before you leave the room: the sentence he prays, the place he can come, the light he can turn on. Write them on a card and put it where he sleeps.',
+      pray: 'God, {name} gets frightened sometimes. So do I. When he is afraid, remind him you are here, and that I am just down the hall. Amen.',
+    },
   },
   {
     id: 'w-conv-made-on-purpose',
@@ -82,7 +134,20 @@ export const STAGE_ONE: ArcItem[] = [
     summary: 'Name a trait that is genuinely his, and say it was given to him.',
     detail:
       'Not a single talk — a thing you say more than once, in specifics. This is the seed of the blessing you will speak over him at thirteen, and it should not be the first time he hears the idea.',
+    fatherFirst:
+      'Start with something you have noticed about him for years and never said out loud, and tell him how long you have been watching it. The length of time is what makes it land: it proves you were not just being kind.',
+    opener:
+      '"There\'s something about you I\'ve noticed since you were about four, and I don\'t think I\'ve ever told you."',
     scripture: 'Psalm 139:13–14',
+    session: {
+      read: 'Read it aloud, then read verse 14 again with his name in place of "I".',
+      ask: [
+        "What do you think you're actually good at?",
+        'Do you reckon that was given to you, or did you just end up that way?',
+      ],
+      do: 'Write the trait down tonight, where you will find it again in three years. It is the first line of what you will say over him at his blessing.',
+      pray: 'God, thank you for making {name} exactly as he is. Thank you for the thing I have just named in him. Do not let him waste it, and do not let me be the one who talks him out of it. Amen.',
+    },
   },
 
   // ---- Competencies ----
