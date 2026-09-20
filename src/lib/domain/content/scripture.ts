@@ -66,6 +66,26 @@ const PASSAGES: Record<string, Passage> = {
     translation: WEBBE,
     text: 'Let no man despise your youth; but be an example to those who believe, in word, in your way of life, in love, in spirit, in faith, and in purity.',
   },
+  'Psalm 23': {
+    reference: 'Psalm 23',
+    translation: WEBBE,
+    text:
+      'The LORD is my shepherd; I shall lack nothing. He makes me lie down in green pastures. ' +
+      'He leads me beside still waters. He restores my soul. He guides me in the paths of ' +
+      'righteousness for his name’s sake. Even though I walk through the valley of the shadow ' +
+      'of death, I will fear no evil, for you are with me. Your rod and your staff, they comfort ' +
+      'me. You prepare a table before me in the presence of my enemies. You anoint my head with ' +
+      'oil. My cup runs over. Surely goodness and loving kindness shall follow me all the days of ' +
+      'my life, and I will dwell in the LORD’s house forever.',
+  },
+  'Hebrews 10:24–25': {
+    reference: 'Hebrews 10:24–25',
+    translation: WEBBE,
+    text:
+      'Let’s consider how to provoke one another to love and good works, not forsaking our own ' +
+      'assembling together, as the custom of some is, but exhorting one another, and so much the ' +
+      'more as you see the Day approaching.',
+  },
   'Deuteronomy 6:6–7': {
     reference: 'Deuteronomy 6:6–7',
     translation: WEBBE,

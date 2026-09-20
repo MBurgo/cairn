@@ -14,7 +14,7 @@ export const GROUNDWORK: GroundworkItem[] = [
     title: 'Set the day you want to be asked',
     summary: 'One thing a week, for about ten years. Nothing this week involves your sons.',
     detail:
-      'One thing a week. Not one a day, and never one per son — however many boys you have, Cairn asks you for one thing. Some weeks it takes an afternoon, most weeks it takes a conversation, and a few times over the next decade it takes a proper occasion with other men present.\n\nIt runs from eight to eighteen in four stages, and at the end there is a book for each of your sons containing what you did, what you said, and what you prayed. Nothing this week involves him. Just tell Cairn when to ask you.',
+      'One thing a week. Not one a day, and never one per son — however many boys you have, Cairn asks you for one thing. Some weeks it takes an afternoon, most weeks it takes a conversation, and a few times over the next decade it takes a proper occasion with other men present. The heaviest things in here are usually the shortest: a hard conversation takes about ten minutes, not an afternoon, and when one comes up Cairn takes you through it a step at a time.\n\nIt runs from eight to eighteen in four stages, and at the end there is a book for each of your sons containing what you did, what you said, and what you prayed. Nothing this week involves him. Just tell Cairn when to ask you.',
     input: 'reminder-day',
   },
   {
