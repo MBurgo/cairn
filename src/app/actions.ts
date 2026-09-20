@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import { groundworkById, itemById } from '@/lib/domain/content'
+import { groundworkById, itemById, withName } from '@/lib/domain/content'
 import { deferralDate } from '@/lib/domain/nudge'
 
 export interface ActionResult {
@@ -148,11 +148,21 @@ export async function setItemDone(
   return { ok: done ? 'Marked as done.' : 'Unmarked.' }
 }
 
+/** Long enough to come back to, short enough that he does not dread it. */
+const SESSION_REVIEW_MONTHS = 3
+
 /**
- * The last step of a session. Writes the same arc_progress row the card's
- * button writes — a session is a nicer way to reach the same state, not a
- * second kind of completion — and then sends him home, because ending on the
- * final step would leave him standing inside a flow he has finished.
+ * The last step of a session, and the only one that writes anything.
+ *
+ * Progress goes on the same arc_progress row the card's button writes — a
+ * session is a nicer way to reach the same state, not a second kind of
+ * completion. Two optional things can be kept alongside it: a line about what
+ * he noticed, and the prayer he has just prayed. Both are skipped by leaving
+ * them alone, and neither is required to finish.
+ *
+ * The keeps are written BEFORE the item is marked done. If the database
+ * refuses one, nothing is marked and the error is shown — saying "done" while
+ * quietly dropping what a father wrote would be the worse failure by far.
  */
 export async function completeSession(
   _prev: ActionResult | null,
@@ -160,6 +170,8 @@ export async function completeSession(
 ): Promise<ActionResult> {
   const itemId = String(formData.get('itemId') ?? '')
   const childId = String(formData.get('childId') ?? '')
+  const notice = String(formData.get('notice') ?? '').trim()
+  const keepPrayer = String(formData.get('keepPrayer') ?? '') === 'true'
 
   const item = itemById(itemId)
   if (!item?.session) return { error: 'Unknown session.' }
@@ -167,13 +179,54 @@ export async function completeSession(
   const familyId = await currentFamilyId()
   if (!familyId) return { error: 'No family found.' }
 
-  const scopedChildId = item.scope === 'shared' ? null : childId
-  if (item.scope !== 'shared' && !scopedChildId) return { error: 'Which son?' }
+  const supabase = await createClient()
 
-  const error = await writeProgress(familyId, scopedChildId, itemId, 'done', null)
+  // The id came off a form, and it decides whose book a line ends up in. RLS
+  // checks the family but not that this boy belongs to it, so check here.
+  const { data: child } = await supabase
+    .from('children')
+    .select('id, name')
+    .eq('family_id', familyId)
+    .eq('id', childId)
+    .maybeSingle()
+  if (!child) return { error: 'Which son?' }
+
+  if (notice) {
+    const { error } = await supabase.from('captures').insert({
+      family_id: familyId,
+      // A shared session covers every boy at once, so what he noticed belongs
+      // to the family rather than to one of them.
+      child_id: item.scope === 'shared' ? null : child.id,
+      body: notice,
+      chapter: 'the_years',
+    })
+    if (error) return { error: error.message }
+  }
+
+  // Only on individual sessions: a prayer is filed under one son, and filing
+  // "thank you for our church" under the elder boy would simply be wrong.
+  if (keepPrayer && item.scope !== 'shared') {
+    const { error } = await supabase.from('prayers').insert({
+      family_id: familyId,
+      child_id: child.id,
+      body: withName(item.session.pray, child.name),
+      scripture_ref: item.scripture ?? null,
+      next_review_on: monthsFromNow(SESSION_REVIEW_MONTHS),
+    })
+    if (error) return { error: error.message }
+  }
+
+  const error = await writeProgress(
+    familyId,
+    item.scope === 'shared' ? null : child.id,
+    itemId,
+    'done',
+    null
+  )
   if (error) return { error }
 
   refresh()
+  revalidatePath('/journal')
   redirect('/')
 }
 

@@ -177,6 +177,32 @@ export function Submit({
   )
 }
 
+/**
+ * An offer he can leave alone. Unchecked by default and phrased as a whole
+ * sentence, because the thing being offered is worth a sentence.
+ */
+export function Check({
+  name,
+  label,
+  onCard = false,
+}: {
+  name: string
+  label: string
+  onCard?: boolean
+}) {
+  return (
+    <label className="flex min-h-11 cursor-pointer items-start gap-3 py-1">
+      <input
+        type="checkbox"
+        name={name}
+        value="true"
+        className="mt-0.5 size-5 shrink-0 accent-[var(--rust)]"
+      />
+      <span className={`text-sm ${onCard ? 'text-card-soft' : 'text-ink-soft'}`}>{label}</span>
+    </label>
+  )
+}
+
 export function Notice({
   children,
   tone = 'error',

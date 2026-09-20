@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { withName } from '@/lib/domain/content'
 import { completeSession } from '@/app/actions'
 import { ActionForm } from '@/components/action-form'
-import { Card, Kicker, LinkButton } from '@/components/ui'
+import { Card, Check, Kicker, LinkButton, Sheet } from '@/components/ui'
 import { Scripture } from '@/components/scripture'
 import type { ArcItem, Child, Session, StepKey } from '@/lib/domain/types'
 
@@ -160,8 +160,34 @@ export function SessionStep({
           submitLabel="Done"
           pendingLabel="Marking…"
           onCard
+          className="flex flex-col gap-5"
           footnote={item.scope === 'shared' ? 'Counts for every son' : undefined}
         >
+          {/*
+           * Two things he can keep, both skipped by leaving them alone. They
+           * sit here rather than on a fifth screen, because a fifth screen is
+           * a fifth chance to bail — and because this is the one moment he has
+           * something to say and it is still fresh.
+           */}
+          <Sheet
+            prompt={
+              item.scope === 'shared'
+                ? 'What did you notice in them just then?'
+                : `What did you notice in ${child.name} just then?`
+            }
+            name="notice"
+            rows={3}
+            placeholder="One line is plenty. Nobody else reads this."
+            keptFor={item.scope === 'shared' ? undefined : child.name}
+          />
+          {/* A prayer is filed under one son, so a shared session cannot keep one. */}
+          {item.scope === 'shared' ? null : (
+            <Check
+              name="keepPrayer"
+              onCard
+              label="Keep this prayer, and ask me in a few months what happened."
+            />
+          )}
           <input type="hidden" name="itemId" value={item.id} />
           <input type="hidden" name="childId" value={child.id} />
         </ActionForm>
